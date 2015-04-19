@@ -1,0 +1,28 @@
+{
+    "version": "1.4.1",
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "declaration": false,
+        "noImplicitAny": false,
+        "removeComments": true,
+        "noLib": false
+    },
+    "filesGlob": [
+        "./**/*.ts",
+        "!./node_modules/**/*.ts"
+    ],
+    "files": [
+        "./app.ts",
+        "./routes/index.ts",
+        "./routes/users.ts",
+        "./typings/body-parser/body-parser.d.ts",
+        "./typings/cookie-parser/cookie-parser.d.ts",
+        "./typings/debug/debug.d.ts",
+        "./typings/express/express.d.ts",
+        "./typings/morgan/morgan.d.ts",
+        "./typings/node/node.d.ts",
+        "./typings/serve-favicon/serve-favicon.d.ts",
+        "./typings/tsd.d.ts"
+    ]
+}
