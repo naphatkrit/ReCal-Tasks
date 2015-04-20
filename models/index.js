@@ -1,7 +1,7 @@
-'use strict';
 var fs = require('fs');
 var path = require('path');
 var Sequelize = require('sequelize');
+var ReCalLib = require("../lib/lib");
 var basename = path.basename(module.filename);
 var env = process.env.NODE_ENV || 'development';
 var sequelize = new Sequelize(process.env.DATABASE_URL, {});
@@ -22,4 +22,8 @@ Object.keys(db).forEach(function (modelName) {
         db[modelName].associate(db);
     }
 });
+var invariants = [
+    ReCalLib.Invariants.notNullOrUndefined(db.Task),
+];
+ReCalLib.Invariants.checkArray(invariants);
 module.exports = db;

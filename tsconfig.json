@@ -8,13 +8,29 @@
         "removeComments": true,
         "noLib": false
     },
+    "formatCodeOptions": {
+        "indentSize": 4,
+        "tabSize": 4,
+        "newLineCharacter": "\n",
+        "convertTabsToSpaces": true,
+        "insertSpaceAfterCommaDelimiter": true,
+        "insertSpaceAfterSemicolonInForStatements": true,
+        "insertSpaceBeforeAndAfterBinaryOperators": true,
+        "insertSpaceAfterKeywordsInControlFlowStatements": true,
+        "insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
+        "insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis": false,
+        "placeOpenBraceOnNewLineForFunctions": true,
+        "placeOpenBraceOnNewLineForControlBlocks": true
+    },
     "filesGlob": [
+        "./lib/lib.d.ts",
         "./**/*.ts",
         "!./node_modules/**/*.ts"
     ],
     "files": [
         "./app.ts",
-        "./models/data_structures/DatabaseProxy.ts",
+        "./lib/Invariants.ts",
+        "./lib/lib.ts",
         "./models/index.ts",
         "./models/task.ts",
         "./routes/index.ts",

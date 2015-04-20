@@ -1,14 +1,12 @@
-'use strict';
-
 import fs = require('fs');
 import path = require('path');
 import Sequelize = require('sequelize');
-import DatabaseProxy = require('data_structures/DatabaseProxy');
+import ReCalLib = require("../lib/lib");
 
 var basename = path.basename(module.filename);
 var env = process.env.NODE_ENV || 'development';
 var sequelize = new Sequelize(process.env.DATABASE_URL, {});
-var db: DatabaseProxy = {
+var db: ReCalLib.DatabaseProxy = {
     sequelize: sequelize,
 };
 
@@ -27,5 +25,11 @@ Object.keys(db).forEach(function(modelName) {
         db[modelName].associate(db);
     }
 });
+
+let invariants = [
+    ReCalLib.Invariants.notNullOrUndefined(db.Task),
+];
+
+ReCalLib.Invariants.checkArray(invariants);
 
 export = db;
