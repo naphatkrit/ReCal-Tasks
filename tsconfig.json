@@ -14,8 +14,9 @@
     ],
     "files": [
         "./app.ts",
+        "./models/data_structures/DatabaseProxy.ts",
         "./models/index.ts",
-        "./models/indextest.ts",
+        "./models/task.ts",
         "./routes/index.ts",
         "./routes/users.ts",
         "./typings/body-parser/body-parser.d.ts",
