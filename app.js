@@ -23,21 +23,19 @@ app.use(function (req, res, next) {
     next(err);
 });
 if (app.get('env') === 'development') {
-    var callback_1 = function (err, req, res, next) {
+    app.use(function (err, req, res, next) {
         res.status(err.status || 500);
         res.render('error', {
             message: err.message,
             error: err
         });
-    };
-    app.use(callback_1);
+    });
 }
-var callback = function (err, req, res, next) {
+app.use(function (err, req, res, next) {
     res.status(err.status || 500);
     res.render('error', {
         message: err.message,
         error: {}
     });
-};
-app.use(callback);
+});
 module.exports = app;

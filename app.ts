@@ -14,7 +14,7 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-// uncomment after placing your favicon in /public
+// TODO uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
@@ -39,26 +39,24 @@ app.use((req, res, next) => {
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
-    let callback: express.ErrorRequestHandler = (err, req, res, next) => {
+    app.use(<(express.ErrorRequestHandler)> function(err, req, res, next) {
         res.status(err.status || 500);
         res.render('error', {
             message: err.message,
             error: err
         })
-    }
-    app.use(callback);
+    });
 }
 
-let callback: express.ErrorRequestHandler = function(err, req, res, next) {
+// production error handler
+// no stacktraces leaked to user
+app.use(<(express.ErrorRequestHandler)> function (err, req, res, next) {
     res.status(err.status || 500);
     res.render('error', {
         message: err.message,
         error: {}
     });
-}
-// production error handler
-// no stacktraces leaked to user
-app.use(callback);
+});
 
 
 export = app;

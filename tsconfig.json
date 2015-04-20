@@ -14,14 +14,18 @@
     ],
     "files": [
         "./app.ts",
+        "./models/index.ts",
+        "./models/indextest.ts",
         "./routes/index.ts",
         "./routes/users.ts",
         "./typings/body-parser/body-parser.d.ts",
         "./typings/cookie-parser/cookie-parser.d.ts",
         "./typings/debug/debug.d.ts",
         "./typings/express/express.d.ts",
+        "./typings/lodash/lodash.d.ts",
         "./typings/morgan/morgan.d.ts",
         "./typings/node/node.d.ts",
+        "./typings/sequelize/sequelize.d.ts",
         "./typings/serve-favicon/serve-favicon.d.ts",
         "./typings/tsd.d.ts"
     ]
