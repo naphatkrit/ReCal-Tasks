@@ -1,21 +1,23 @@
 module.exports = function (sequelize, DataTypes) {
-    return sequelize.define('Task', {
+    return sequelize.define('TaskInfo', {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
             allowNull: false
         },
-        status: {
-            type: DataTypes.ENUM,
+        title: {
+            type: DataTypes.TEXT,
             values: ["complete", "incomplete"],
             allowNull: false,
             defaultValue: "incomplete"
-        }
+        },
     }, {
         classMethods: {
             associate: function (models) {
+                models.TaskInfo.hasMany(models.Task, { as: "tasks" });
             }
-        }
+        },
+        freezeTableName: true,
     });
 };

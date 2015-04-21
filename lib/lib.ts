@@ -5,9 +5,12 @@ import _Invariants = require('./Invariants');
 module ReCalLib {
     export var Invariants = _Invariants;
 
-    export interface DatabaseProxy {
-        sequelize: Sequelize.Sequelize;
-        Task?: Sequelize.Model<any, any>;
+    export module Interfaces {
+        export interface DatabaseProxy {
+            sequelize: Sequelize.Sequelize;
+            Task?: Sequelize.Model<any, any>;
+            TaskInfo?: Sequelize.Model<any, any>;
+        }
     }
 }
 

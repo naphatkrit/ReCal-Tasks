@@ -33,6 +33,7 @@
         "./lib/lib.ts",
         "./models/index.ts",
         "./models/task.ts",
+        "./models/task_info.ts",
         "./routes/index.ts",
         "./routes/users.ts",
         "./typings/body-parser/body-parser.d.ts",

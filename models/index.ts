@@ -6,7 +6,7 @@ import ReCalLib = require("../lib/lib");
 var basename = path.basename(module.filename);
 var env = process.env.NODE_ENV || 'development';
 var sequelize = new Sequelize(process.env.DATABASE_URL, {});
-var db: ReCalLib.DatabaseProxy = {
+var db: ReCalLib.Interfaces.DatabaseProxy = {
     sequelize: sequelize,
 };
 

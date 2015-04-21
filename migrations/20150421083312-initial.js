@@ -9,7 +9,7 @@ module.exports = {
       Example:
       return queryInterface.createTable('users', { id: Sequelize.INTEGER });
     */
-    return queryInterface.createTable("Tasks", {
+    var tasks = queryInterface.createTable("Tasks", {
         id: {
             type: Sequelize.INTEGER,
             primaryKey: true,
@@ -21,8 +21,29 @@ module.exports = {
             values: ["complete", "incomplete"],
             allowNull: false,
             defaultValue: "incomplete"
+        },
+        createdAt: Sequelize.DATE,
+        updatedAt: Sequelize.DATE,
+        TaskInfoId: {
+            type: Sequelize.INTEGER,
+            allowNull: false
         }
     }, {})
+    var taskInfo = queryInterface.createTable("TaskInfo", {
+        id: {
+            type: Sequelize.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+            allowNull: false
+        },
+        title: {
+            type: Sequelize.TEXT,
+            allowNull: false
+        },
+        createdAt: Sequelize.DATE,
+        updatedAt: Sequelize.DATE,
+    })
+    return Sequelize.Promise.all([tasks, taskInfo]);
   },
 
   down: function (queryInterface, Sequelize) {
@@ -33,6 +54,8 @@ module.exports = {
       Example:
       return queryInterface.dropTable('users');
     */
-    return queryInterface.dropTable("Tasks");
+    var task = queryInterface.dropTable("Tasks");
+    var taskInfo = queryInterface.dropTable("TaskInfo");
+    return Sequelize.Promise.all([task, taskInfo]);
   }
 };
