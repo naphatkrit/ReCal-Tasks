@@ -29,6 +29,7 @@
     ],
     "files": [
         "./app.ts",
+        "./authentication/index.ts",
         "./lib/Invariants.ts",
         "./lib/lib.ts",
         "./models/index.ts",
@@ -36,6 +37,8 @@
         "./models/task_info.ts",
         "./routes/index.ts",
         "./routes/users.ts",
+        "./typings-manual/index.d.ts",
+        "./typings-manual/xcas/xcas.d.ts",
         "./typings/body-parser/body-parser.d.ts",
         "./typings/cookie-parser/cookie-parser.d.ts",
         "./typings/debug/debug.d.ts",
