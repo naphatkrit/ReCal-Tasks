@@ -5,11 +5,30 @@ import logger = require('morgan');
 import cookieParser = require('cookie-parser');
 import bodyParser = require('body-parser');
 import passport = require('passport');
+import url = require('url');
 
 import routes = require('./routes/index');
 import users = require('./routes/users');
 
 // passport.use();
+passport.use(new (require('passport-cas').Strategy)({
+  ssoBaseURL: process.env.CAS_URL,
+}, function(login, done) {
+    done(null, {
+        username: login
+    });
+}));
+
+// TODO replace with actual implementation once we have a user object
+passport.serializeUser(function(user, done) {
+    done(null, user.username);
+});
+
+passport.deserializeUser(function(username, done) {
+    done(null, {
+        username: username,
+    })
+})
 
 var app = express();
 
@@ -30,8 +49,27 @@ app.use(passport.session());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
-app.use('/users', users);
+app.use('/login', passport.authenticate('cas', {
+    successRedirect: '/',
+    failureRedirect: '/login'
+}))
+app.use('/logout', function(req, res, next) {
+    req.logout();
+    let parsedURL = url.parse(req.url, true);
+    delete parsedURL.query.ticket;
+    delete parsedURL.search;
+    let service = url.format({
+        protocol: req.protocol || 'http',
+        host: req.headers['host'],
+        pathname: parsedURL.pathname,
+        query: parsedURL.query
+    })
+    let casUrl = url.parse(process.env.CAS_URL)
+    let casLogoutUrl = url.resolve(casUrl.href, casUrl.pathname + '/logout');
+    res.redirect(casLogoutUrl + '?url=' + encodeURIComponent(service));
+})
+app.use('/', passport.authenticate('cas'), routes);
+app.use('/users', passport.authenticate('cas'), users);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) =>

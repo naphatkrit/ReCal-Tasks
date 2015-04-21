@@ -13,6 +13,7 @@
     "jade": "~1.9.2",
     "morgan": "~1.5.1",
     "passport": "^0.2.1",
+    "passport-cas": "https://github.com/naphatkrit/passport-cas/tarball/master",
     "pg": "^4.3.0",
     "pg-hstore": "^2.3.2",
     "sequelize": "^2.0.6",
