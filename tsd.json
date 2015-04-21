@@ -6,10 +6,10 @@
   "bundle": "typings/tsd.d.ts",
   "installed": {
     "express/express.d.ts": {
-      "commit": "e57df787f4e11601625d7e1c1b2ee351b97a18a1"
+      "commit": "cb08e83dd87ace1202d1032a8f275b3efacde5c3"
     },
     "node/node.d.ts": {
-      "commit": "e57df787f4e11601625d7e1c1b2ee351b97a18a1"
+      "commit": "cb08e83dd87ace1202d1032a8f275b3efacde5c3"
     },
     "serve-favicon/serve-favicon.d.ts": {
       "commit": "e57df787f4e11601625d7e1c1b2ee351b97a18a1"
@@ -31,6 +31,9 @@
     },
     "lodash/lodash.d.ts": {
       "commit": "e57df787f4e11601625d7e1c1b2ee351b97a18a1"
+    },
+    "passport/passport.d.ts": {
+      "commit": "cb08e83dd87ace1202d1032a8f275b3efacde5c3"
     }
   }
 }
