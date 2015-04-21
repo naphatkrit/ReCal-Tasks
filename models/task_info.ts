@@ -8,21 +8,35 @@ export = function(sequelize: Sequelize.Sequelize, DataTypes: Sequelize.DataTypes
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
-            allowNull: false
         },
         title: {
             type: DataTypes.TEXT,
             values: ["complete", "incomplete"],
-            allowNull: false,
             defaultValue: "incomplete"
         },
     }, {
+        getterMethods: {
+            createdAt: function() {
+                return this.getDataValue("createdAt");
+            },
+            updatedAt: function() {
+                return this.getDataValue("updatedAt");
+            },
+        },
         classMethods: {
             associate: function(models: ReCalLib.Interfaces.DatabaseProxy) {
                 // this generates a foreign key on models.Task
-                models.TaskInfo.hasMany(models.Task, {as: "tasks"});
+                models.TaskInfo.hasMany(models.Task);
+                models.TaskInfo.belongsTo(models.TaskInfo, {as: "PreviousVersion"});
             }
         },
         freezeTableName: true, // prevent sequelize from naming the table TaskInfos instead of TaskInfo
+        validate: {
+            isImmutable: function() {
+                if (this.createdAt != this.updatedAt) {
+                    throw new Error("TaskInfo is immutable.");
+                }
+            }
+        }
     });
 }

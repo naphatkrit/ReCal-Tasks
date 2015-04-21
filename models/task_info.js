@@ -4,20 +4,34 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
-            allowNull: false
         },
         title: {
             type: DataTypes.TEXT,
             values: ["complete", "incomplete"],
-            allowNull: false,
             defaultValue: "incomplete"
         },
     }, {
+        getterMethods: {
+            createdAt: function () {
+                return this.getDataValue("createdAt");
+            },
+            updatedAt: function () {
+                return this.getDataValue("updatedAt");
+            },
+        },
         classMethods: {
             associate: function (models) {
-                models.TaskInfo.hasMany(models.Task, { as: "tasks" });
+                models.TaskInfo.hasMany(models.Task);
+                models.TaskInfo.belongsTo(models.TaskInfo, { as: "PreviousVersion" });
             }
         },
         freezeTableName: true,
+        validate: {
+            isImmutable: function () {
+                if (this.createdAt != this.updatedAt) {
+                    throw new Error("TaskInfo is immutable.");
+                }
+            }
+        }
     });
 };

@@ -8,17 +8,16 @@ export = function(sequelize: Sequelize.Sequelize, DataTypes: Sequelize.DataTypes
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
-            allowNull: false
         },
         status: {
             type: DataTypes.ENUM,
             values: ["complete", "incomplete"],
-            allowNull: false,
             defaultValue: "incomplete"
         }
     }, {
         classMethods: {
             associate: function(models: ReCalLib.Interfaces.DatabaseProxy) {
+                models.Task.belongsTo(models.TaskInfo); // this is just to generate the helper method. the id is already created as part of TaskInfo's associate()
             }
         }
     });

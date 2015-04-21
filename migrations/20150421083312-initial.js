@@ -26,7 +26,8 @@ module.exports = {
         updatedAt: Sequelize.DATE,
         TaskInfoId: {
             type: Sequelize.INTEGER,
-            allowNull: false
+            allowNull: false,
+            references: "TaskInfo",
         }
     }, {})
     var taskInfo = queryInterface.createTable("TaskInfo", {
@@ -42,6 +43,11 @@ module.exports = {
         },
         createdAt: Sequelize.DATE,
         updatedAt: Sequelize.DATE,
+        PreviousVersionId: {
+            type: Sequelize.INTEGER,
+            allowNull: true,
+            references: "TaskInfo",
+        }
     })
     return Sequelize.Promise.all([tasks, taskInfo]);
   },
