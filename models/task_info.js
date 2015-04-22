@@ -10,6 +10,11 @@ module.exports = function (sequelize, DataTypes) {
             values: ["complete", "incomplete"],
             defaultValue: "incomplete"
         },
+        privacy: {
+            type: DataTypes.ENUM,
+            values: ["private", "public"],
+            defaultValue: "private"
+        }
     }, {
         getterMethods: {
             createdAt: function () {

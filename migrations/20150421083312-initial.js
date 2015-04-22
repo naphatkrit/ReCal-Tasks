@@ -50,6 +50,12 @@ module.exports = {
                         type: Sequelize.TEXT,
                         allowNull: false
                     },
+                    privacy: {
+                        type: Sequelize.ENUM,
+                        values: ["private", "public"],
+                        defaultValue: "private",
+                        allowNull: false,
+                    },
                     createdAt: Sequelize.DATE,
                     updatedAt: Sequelize.DATE,
                     PreviousVersionId: {
