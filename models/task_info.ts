@@ -28,6 +28,7 @@ export = function(sequelize: Sequelize.Sequelize, DataTypes: Sequelize.DataTypes
                 // this generates a foreign key on models.Task
                 models.TaskInfo.hasMany(models.Task);
                 models.TaskInfo.belongsTo(models.TaskInfo, {as: "PreviousVersion"});
+                models.TaskInfo.belongsTo(models.TaskGroup); // only to generate method.
             }
         },
         freezeTableName: true, // prevent sequelize from naming the table TaskInfos instead of TaskInfo

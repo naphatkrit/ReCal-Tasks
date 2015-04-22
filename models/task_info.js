@@ -23,6 +23,7 @@ module.exports = function (sequelize, DataTypes) {
             associate: function (models) {
                 models.TaskInfo.hasMany(models.Task);
                 models.TaskInfo.belongsTo(models.TaskInfo, { as: "PreviousVersion" });
+                models.TaskInfo.belongsTo(models.TaskGroup);
             }
         },
         freezeTableName: true,

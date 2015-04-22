@@ -32,6 +32,9 @@ Object.keys(db).forEach(function(modelName) {
 
 let invariants = [
     ReCalLib.Invariants.notNullOrUndefined(db.Task),
+    ReCalLib.Invariants.notNullOrUndefined(db.TaskInfo),
+    ReCalLib.Invariants.notNullOrUndefined(db.TaskGroup),
+    ReCalLib.Invariants.notNullOrUndefined(db.User),
 ];
 
 ReCalLib.Invariants.checkArray(invariants);

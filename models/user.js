@@ -10,6 +10,14 @@ module.exports = function (sequelize, DataTypes) {
         }
     }, {
         classMethods: {
+            getterMethods: {
+                createdAt: function () {
+                    return this.getDataValue("createdAt");
+                },
+                updatedAt: function () {
+                    return this.getDataValue("updatedAt");
+                },
+            },
             associate: function (models) {
                 models.User.hasMany(models.Task);
             }

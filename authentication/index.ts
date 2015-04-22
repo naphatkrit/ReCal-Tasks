@@ -1,26 +1,26 @@
 import passport = require('passport');
 import url = require('url');
+import models = require("../models/index");
 
 passport.use(new (require('passport-cas').Strategy)({
     ssoBaseURL: process.env.CAS_URL,
     passReqToCallback: true,
 }, function(req, login, done)
     {
-        let ticket = req.query.ticket;
-        if (ticket === null || ticket === undefined)
-        {
-            done(new Error('Invalid ticket'));
-        } else
+        // let ticket = req.query.ticket;
+        models.User.findOrCreate({
+            where: {
+                username: login
+            }
+        }).then((userObject) =>
         {
             done(null, {
                 username: login,
-                ticket: ticket,
             });
-        }
-
+        });
     }));
 
-// TODO replace with actual implementation once we have a user object
+// we keep a dictionary of user data instead of a user model instance to prevent staleness
 passport.serializeUser(function(user, done)
 {
     done(null, JSON.stringify(user));
