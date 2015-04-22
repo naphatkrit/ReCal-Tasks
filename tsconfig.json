@@ -29,6 +29,7 @@
     ],
     "files": [
         "./app.ts",
+        "./authentication/index.ts",
         "./lib/Invariants.ts",
         "./lib/lib.ts",
         "./models/index.ts",
