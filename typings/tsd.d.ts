@@ -7,3 +7,5 @@
 /// <reference path="morgan/morgan.d.ts" />
 /// <reference path="lodash/lodash.d.ts" />
 /// <reference path="sequelize/sequelize.d.ts" />
+/// <reference path="passport/passport.d.ts" />
+/// <reference path="express-session/express-session.d.ts" />
