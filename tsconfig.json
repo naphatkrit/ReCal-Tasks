@@ -35,6 +35,7 @@
         "./models/index.ts",
         "./models/task.ts",
         "./models/task_info.ts",
+        "./models/user.ts",
         "./routes/index.ts",
         "./routes/users.ts",
         "./typings-manual/index.d.ts",

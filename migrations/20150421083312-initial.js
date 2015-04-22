@@ -28,6 +28,11 @@ module.exports = {
             type: Sequelize.INTEGER,
             allowNull: false,
             references: "TaskInfo",
+        },
+        UserId: {
+            type: Sequelize.INTEGER,
+            allowNull: false,
+            references: "Users",
         }
     }, {})
     var taskInfo = queryInterface.createTable("TaskInfo", {
@@ -49,7 +54,21 @@ module.exports = {
             references: "TaskInfo",
         }
     })
-    return Sequelize.Promise.all([tasks, taskInfo]);
+    var user = queryInterface.createTable("Users", {
+        id: {
+            type: Sequelize.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+            allowNull: false
+        },
+        username: {
+            type: Sequelize.TEXT,
+            allowNull: false
+        },
+        createdAt: Sequelize.DATE,
+        updatedAt: Sequelize.DATE,
+    })
+    return Sequelize.Promise.all([tasks, taskInfo, user]);
   },
 
   down: function (queryInterface, Sequelize) {
@@ -62,6 +81,7 @@ module.exports = {
     */
     var task = queryInterface.dropTable("Tasks");
     var taskInfo = queryInterface.dropTable("TaskInfo");
-    return Sequelize.Promise.all([task, taskInfo]);
+    var user = queryInterface.dropTable('Users');
+    return Sequelize.Promise.all([task, taskInfo, user]);
   }
 };

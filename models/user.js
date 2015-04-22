@@ -1,20 +1,17 @@
 module.exports = function (sequelize, DataTypes) {
-    return sequelize.define('Task', {
+    return sequelize.define('User', {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        status: {
-            type: DataTypes.ENUM,
-            values: ["complete", "incomplete"],
-            defaultValue: "incomplete"
+        username: {
+            type: DataTypes.STRING
         }
     }, {
         classMethods: {
             associate: function (models) {
-                models.Task.belongsTo(models.TaskInfo);
-                models.Task.belongsTo(models.User);
+                models.User.hasMany(models.Task);
             }
         }
     });

@@ -10,6 +10,7 @@ module ReCalLib {
             sequelize: Sequelize.Sequelize;
             Task?: Sequelize.Model<any, any>;
             TaskInfo?: Sequelize.Model<any, any>;
+            User?: Sequelize.Model<any, any>;
         }
     }
 }
