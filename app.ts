@@ -5,6 +5,7 @@ import logger = require('morgan');
 import cookieParser = require('cookie-parser');
 import bodyParser = require('body-parser');
 import passport = require('passport');
+import session = require('express-session');
 import url = require('url');
 
 import routes = require('./routes/index');
@@ -13,22 +14,40 @@ import users = require('./routes/users');
 // passport.use();
 passport.use(new (require('passport-cas').Strategy)({
   ssoBaseURL: process.env.CAS_URL,
-}, function(login, done) {
-    done(null, {
-        username: login
-    });
+  passReqToCallback: true,
+}, function(req, login, done) {
+    let ticket = req.query.ticket;
+    if (ticket === null || ticket === undefined) {
+        done(new Error('Invalid ticket'));
+    } else {
+        done(null, {
+            username: login,
+            ticket: ticket,
+        });
+    }
+
 }));
 
 // TODO replace with actual implementation once we have a user object
 passport.serializeUser(function(user, done) {
-    done(null, user.username);
+    done(null, JSON.stringify(user));
 });
 
-passport.deserializeUser(function(username, done) {
-    done(null, {
-        username: username,
-    })
+passport.deserializeUser(function(userString, done) {
+    done(null, JSON.parse(userString))
 })
+
+// Simple route middleware to ensure user is authenticated.
+//   Use this route middleware on any resource that needs to be protected.  If
+//   the request is authenticated (typically via a persistent login session),
+//   the request will proceed.  Otherwise, the user will be redirected to the
+//   login page.
+function ensureAuthenticated(req, res, next) {
+    console.log("Ensuring authentication");
+    console.log(req._passport);
+  if (req.isAuthenticated()) { return next(); }
+  res.redirect('/login')
+}
 
 var app = express();
 
@@ -43,15 +62,19 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: false
 }));
-// app.use(express.session()); // if we use this, put it before passport
+app.use(session({
+    secret: "ReCal Secret"
+})); // if we use this, put it before passport
 app.use(passport.initialize());
-app.use(passport.session());
+app.use(passport.session({
+    pauseStream: true,
+    failureRedirect: '/login'
+}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/login', passport.authenticate('cas', {
-    successRedirect: '/',
-    failureRedirect: '/login'
+    successRedirect: '/'
 }))
 app.use('/logout', function(req, res, next) {
     req.logout();
@@ -68,8 +91,8 @@ app.use('/logout', function(req, res, next) {
     let casLogoutUrl = url.resolve(casUrl.href, casUrl.pathname + '/logout');
     res.redirect(casLogoutUrl + '?url=' + encodeURIComponent(service));
 })
-app.use('/', passport.authenticate('cas'), routes);
-app.use('/users', passport.authenticate('cas'), users);
+app.use('/', ensureAuthenticated, routes);
+app.use('/users', ensureAuthenticated, users);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) =>
@@ -105,6 +128,5 @@ app.use(<(express.ErrorRequestHandler) > function(err, req, res, next)
         error: {}
     });
 });
-
 
 export = app;
