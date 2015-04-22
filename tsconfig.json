@@ -30,6 +30,7 @@
     "files": [
         "./app.ts",
         "./authentication/index.ts",
+        "./lib/assert.ts",
         "./lib/invariants.ts",
         "./lib/lib.ts",
         "./lib/promise_adapter.ts",
@@ -42,6 +43,7 @@
         "./models/user.ts",
         "./routes/index.ts",
         "./routes/users.ts",
+        "./test/model__logic__task.ts",
         "./typings-manual/index.d.ts",
         "./typings-manual/sequelize/sequelize.d.ts",
         "./typings/body-parser/body-parser.d.ts",
@@ -50,6 +52,7 @@
         "./typings/express-session/express-session.d.ts",
         "./typings/express/express.d.ts",
         "./typings/lodash/lodash.d.ts",
+        "./typings/mocha/mocha.d.ts",
         "./typings/morgan/morgan.d.ts",
         "./typings/node/node.d.ts",
         "./typings/passport/passport.d.ts",

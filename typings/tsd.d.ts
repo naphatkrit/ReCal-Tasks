@@ -10,3 +10,4 @@
 /// <reference path="passport/passport.d.ts" />
 /// <reference path="express-session/express-session.d.ts" />
 /// <reference path="q/Q.d.ts" />
+/// <reference path="mocha/mocha.d.ts" />
