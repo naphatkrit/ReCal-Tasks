@@ -17,6 +17,7 @@
     "passport-cas": "https://github.com/naphatkrit/passport-cas/tarball/master",
     "pg": "^4.3.0",
     "pg-hstore": "^2.3.2",
+    "q": "^1.2.0",
     "sequelize": "^2.0.6",
     "sequelize-cli": "^1.7.0",
     "serve-favicon": "~2.2.0"

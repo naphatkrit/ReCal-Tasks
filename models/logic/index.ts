@@ -1,0 +1,4 @@
+module ModelLogic {
+}
+
+export = ModelLogic;

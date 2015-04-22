@@ -37,6 +37,9 @@
     },
     "express-session/express-session.d.ts": {
       "commit": "cb08e83dd87ace1202d1032a8f275b3efacde5c3"
+    },
+    "q/Q.d.ts": {
+      "commit": "6b19a967eff47c4d6eaf56c573ea4b8f0fc9c487"
     }
   }
 }

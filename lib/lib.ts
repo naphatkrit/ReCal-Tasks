@@ -1,9 +1,11 @@
 import Sequelize = require('sequelize');
 
-import _Invariants = require('./Invariants');
+import _Invariants = require('./invariants');
+import _PromiseAdapter = require("./promise_adapter");
 
 module ReCalLib {
     export var Invariants = _Invariants;
+    export var PromiseAdapter = _PromiseAdapter;
 
     export module Interfaces {
         export interface DatabaseProxy {
