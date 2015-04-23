@@ -23,6 +23,7 @@
         "placeOpenBraceOnNewLineForControlBlocks": true
     },
     "filesGlob": [
+        "./lib/lib.d.ts",
         "./**/*.ts",
         "!./node_modules/**/*.ts"
     ],

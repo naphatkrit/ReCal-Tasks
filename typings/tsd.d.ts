@@ -1,13 +1,2 @@
-/// <reference path="express/express.d.ts" />
+
 /// <reference path="node/node.d.ts" />
-/// <reference path="serve-favicon/serve-favicon.d.ts" />
-/// <reference path="body-parser/body-parser.d.ts" />
-/// <reference path="cookie-parser/cookie-parser.d.ts" />
-/// <reference path="debug/debug.d.ts" />
-/// <reference path="morgan/morgan.d.ts" />
-/// <reference path="lodash/lodash.d.ts" />
-/// <reference path="sequelize/sequelize.d.ts" />
-/// <reference path="passport/passport.d.ts" />
-/// <reference path="express-session/express-session.d.ts" />
-/// <reference path="q/Q.d.ts" />
-/// <reference path="mocha/mocha.d.ts" />
