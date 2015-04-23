@@ -1,17 +1,14 @@
 // logic about tasks
 import Sequelize = require("sequelize");
+import helper = require("./helper");
 import models = require("../index");
 import ReCalLib = require("../../lib/lib");
+import Q = require('q');
+
 import PromiseAdapter = ReCalLib.PromiseAdapter;
 
 module TaskLogic
 {
-    function modelInstanceExists(model: Sequelize.Model<any, any>, modelId: number): Q.Promise<boolean>
-    {
-        let promise = PromiseAdapter.convertSequelize(model.count({ where: { id: modelId } }))
-        return promise.then(function(count) { return count > 0; })
-    }
-
     export function exportTaskGroup(taskGroupModel: any): Q.Promise<Interfaces.TaskGroupObject>
     {
         return Q.fcall(()=>{
@@ -55,14 +52,14 @@ module TaskLogic
 
     export function createTask(taskObject: Interfaces.TaskObject): Q.Promise<Interfaces.TaskObject>
     {
-        return modelInstanceExists(models.TaskGroup, taskObject.taskInfo.taskGroup.id)
+        return helper.modelInstanceExists(models.TaskGroup, taskObject.taskInfo.taskGroup.id)
             .then((exists) =>
         {
             if (!exists)
             {
                 throw new Error("Task Group with ID " + taskObject.taskInfo.taskGroup.id + " does not exist.");
             }
-            return modelInstanceExists(models.User, taskObject.userId);
+            return helper.modelInstanceExists(models.User, taskObject.userId);
         }).then((exists) =>
         {
             if (!exists)

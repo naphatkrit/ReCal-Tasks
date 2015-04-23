@@ -30,11 +30,11 @@
     "files": [
         "./app.ts",
         "./authentication/index.ts",
-        "./lib/assert.ts",
         "./lib/invariants.ts",
         "./lib/lib.ts",
         "./lib/promise_adapter.ts",
         "./models/index.ts",
+        "./models/logic/helper.ts",
         "./models/logic/index.ts",
         "./models/logic/task.ts",
         "./models/task.ts",

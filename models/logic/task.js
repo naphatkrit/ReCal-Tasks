@@ -1,12 +1,10 @@
+var helper = require("./helper");
 var models = require("../index");
 var ReCalLib = require("../../lib/lib");
+var Q = require('q');
 var PromiseAdapter = ReCalLib.PromiseAdapter;
 var TaskLogic;
 (function (TaskLogic) {
-    function modelInstanceExists(model, modelId) {
-        var promise = PromiseAdapter.convertSequelize(model.count({ where: { id: modelId } }));
-        return promise.then(function (count) { return count > 0; });
-    }
     function exportTaskGroup(taskGroupModel) {
         return Q.fcall(function () {
             return {
@@ -45,12 +43,12 @@ var TaskLogic;
     }
     TaskLogic.exportTask = exportTask;
     function createTask(taskObject) {
-        return modelInstanceExists(models.TaskGroup, taskObject.taskInfo.taskGroup.id)
+        return helper.modelInstanceExists(models.TaskGroup, taskObject.taskInfo.taskGroup.id)
             .then(function (exists) {
             if (!exists) {
                 throw new Error("Task Group with ID " + taskObject.taskInfo.taskGroup.id + " does not exist.");
             }
-            return modelInstanceExists(models.User, taskObject.userId);
+            return helper.modelInstanceExists(models.User, taskObject.userId);
         }).then(function (exists) {
             if (!exists) {
                 throw new Error("User with ID " + taskObject.userId + " does not exist.");

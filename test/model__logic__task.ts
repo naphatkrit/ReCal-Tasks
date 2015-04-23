@@ -20,25 +20,19 @@ function createTaskGroup(): Q.Promise<any>
     }));
 }
 
-function destroyModelInstance(model, modelInstance): Q.Promise<any>
-{
-    return ReCalLib.PromiseAdapter.convertSequelize(
-        model.destroy({ where: { id: modelInstance.getDataValue('id') } })
-        )
-}
-
 function destroyTestUser(testUserModel): Q.Promise<any>
 {
-    return destroyModelInstance(models.User, testUserModel);
+    return logic.destroyModelInstance(models.User, testUserModel);
 }
 
 describe('Task Model Logic Testing', () =>
 {
     describe('createTask() Unit Tests', () =>
     {
-        it('Should not accept objects with task ID or task info ID', (done) =>
+        it('Should not accept objects with task ID', (done) =>
         {
-            Q.spread([createTestUser(), createTaskGroup()], (testUserModel, taskGroupModel)=>{
+            Q.spread([createTestUser(), createTaskGroup()], (testUserModel, taskGroupModel) =>
+            {
                 logic.Task.createTask({
                     id: 1234,
                     userId: testUserModel.getDataValue('id'),
@@ -52,13 +46,148 @@ describe('Task Model Logic Testing', () =>
                         }
                     }
                 })
-                .then((taskObject)=>{
-                    return;
-                }, (error)=>{
-                    return;
+                    .then((taskObject) =>
+                {
+                    assert(false);
+                }, (error) =>
+                    {
+                        assert(error);
+                    })
+                    .finally(() =>
+                {
+                    Q.all([destroyTestUser(testUserModel), logic.destroyModelInstance(models.TaskGroup, taskGroupModel)]).then(() => { done(); })
                 })
-                .finally(()=>{
-                    Q.all([destroyTestUser(testUserModel), destroyModelInstance(models.TaskGroup, taskGroupModel)]).then(() => { done(); })
+            })
+        })
+        it('Should not accept objects with task info ID', (done) =>
+        {
+            Q.spread([createTestUser(), createTaskGroup()], (testUserModel, taskGroupModel) =>
+            {
+                logic.Task.createTask({
+                    userId: testUserModel.getDataValue('id'),
+                    status: 'complete',
+                    taskInfo: {
+                        id: 1,
+                        title: 'dummy',
+                        privacy: 'private',
+                        taskGroup: {
+                            id: taskGroupModel.getDataValue('id'),
+                            name: taskGroupModel.getDataValue('name')
+                        }
+                    }
+                })
+                    .then((taskObject) =>
+                {
+                    assert(false);
+                }, (error) =>
+                    {
+                        assert(error);
+                    })
+                    .finally(() =>
+                {
+                    Q.all([destroyTestUser(testUserModel), logic.destroyModelInstance(models.TaskGroup, taskGroupModel)]).then(() => { done(); })
+                })
+            })
+        })
+        it('Should not accept objects with nonexistent task group ID', (done) =>
+        {
+            Q.spread([createTestUser(), createTaskGroup()], (testUserModel, taskGroupModel) =>
+            {
+                logic.Task.createTask({
+                    userId: testUserModel.getDataValue('id'),
+                    status: 'complete',
+                    taskInfo: {
+                        title: 'dummy',
+                        privacy: 'private',
+                        taskGroup: {
+                            id: -1,
+                            name: taskGroupModel.getDataValue('name')
+                        }
+                    }
+                })
+                    .then((taskObject) =>
+                {
+                    assert(false);
+                }, (error) =>
+                    {
+                        assert(error);
+                    })
+                    .finally(() =>
+                {
+                    Q.all([destroyTestUser(testUserModel), logic.destroyModelInstance(models.TaskGroup, taskGroupModel)]).then(() => { done(); })
+                })
+            })
+        })
+        it('Should not accept objects with nonexistent user ID', (done) =>
+        {
+            Q.spread([createTestUser(), createTaskGroup()], (testUserModel, taskGroupModel) =>
+            {
+                logic.Task.createTask({
+                    userId: -1,
+                    status: 'complete',
+                    taskInfo: {
+                        title: 'dummy',
+                        privacy: 'private',
+                        taskGroup: {
+                            id: taskGroupModel.getDataValue('id'),
+                            name: taskGroupModel.getDataValue('name')
+                        }
+                    }
+                })
+                    .then((taskObject) =>
+                {
+                    assert(false);
+                }, (error) =>
+                    {
+                        assert(error);
+                    })
+                    .finally(() =>
+                {
+                    Q.all([destroyTestUser(testUserModel), logic.destroyModelInstance(models.TaskGroup, taskGroupModel)]).then(() => { done(); })
+                })
+            })
+        })
+        it('Should return a valid TaskObject with ID', (done) =>
+        {
+            Q.spread([createTestUser(), createTaskGroup()], (testUserModel, taskGroupModel) =>
+            {
+                let status = 'complete'
+                let title = 'dummy'
+                let privacy = 'private'
+                logic.Task.createTask({
+                    userId: testUserModel.getDataValue('id'),
+                    status: status,
+                    taskInfo: {
+                        title: title,
+                        privacy: privacy,
+                        taskGroup: {
+                            id: taskGroupModel.getDataValue('id'),
+                            name: taskGroupModel.getDataValue('name')
+                        }
+                    }
+                })
+                    .then((taskObject) =>
+                {
+                    assert(taskObject.id !== null && taskObject.id !== undefined);
+                    assert(taskObject.taskInfo.id !== null && taskObject.taskInfo.id !== undefined);
+                    assert(taskObject.status === status)
+                    assert(taskObject.taskInfo.title === title)
+                    assert(taskObject.taskInfo.privacy === privacy)
+                    assert(taskObject.userId === testUserModel.getDataValue('id'))
+                    assert(taskObject.taskInfo.taskGroup.id === taskGroupModel.getDataValue('id'))
+                    assert(taskObject.taskInfo.taskGroup.name === taskGroupModel.getDataValue('name'))
+                    return Q.spread([logic.modelInstanceExists(models.Task, taskObject.id), logic.modelInstanceExists(models.TaskInfo, taskObject.taskInfo.id)], (exists1, exists2) =>
+                    {
+                        assert(exists1 && exists2);
+                        return logic.destroyModelInstanceWithId(models.Task, taskObject.id).then(() =>
+                        {
+                            return logic.destroyModelInstanceWithId(models.TaskInfo, taskObject.taskInfo.id)
+                        })
+                    });
+                })
+                    .finally(() =>
+                {
+                    Q.all([destroyTestUser(testUserModel), logic.destroyModelInstance(models.TaskGroup, taskGroupModel)]).then(() => { done(); })
                 })
             })
         })
