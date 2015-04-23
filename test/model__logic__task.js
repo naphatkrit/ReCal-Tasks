@@ -22,14 +22,14 @@ describe('Task Model Logic Testing', function () {
             Q.spread([createTestUser(), createTaskGroup()], function (testUserModel, taskGroupModel) {
                 logic.Task.createTask({
                     id: 1234,
-                    userId: testUserModel.getDataValue('id'),
+                    userId: testUserModel.id,
                     status: 'complete',
                     taskInfo: {
                         title: 'dummy',
                         privacy: 'private',
                         taskGroup: {
-                            id: taskGroupModel.getDataValue('id'),
-                            name: taskGroupModel.getDataValue('name')
+                            id: taskGroupModel.id,
+                            name: taskGroupModel.name
                         }
                     }
                 }).then(function (taskObject) {
@@ -44,15 +44,15 @@ describe('Task Model Logic Testing', function () {
         it('Should not accept objects with task info ID', function (done) {
             Q.spread([createTestUser(), createTaskGroup()], function (testUserModel, taskGroupModel) {
                 logic.Task.createTask({
-                    userId: testUserModel.getDataValue('id'),
+                    userId: testUserModel.id,
                     status: 'complete',
                     taskInfo: {
                         id: 1,
                         title: 'dummy',
                         privacy: 'private',
                         taskGroup: {
-                            id: taskGroupModel.getDataValue('id'),
-                            name: taskGroupModel.getDataValue('name')
+                            id: taskGroupModel.id,
+                            name: taskGroupModel.name
                         }
                     }
                 }).then(function (taskObject) {
@@ -67,14 +67,14 @@ describe('Task Model Logic Testing', function () {
         it('Should not accept objects with nonexistent task group ID', function (done) {
             Q.spread([createTestUser(), createTaskGroup()], function (testUserModel, taskGroupModel) {
                 logic.Task.createTask({
-                    userId: testUserModel.getDataValue('id'),
+                    userId: testUserModel.id,
                     status: 'complete',
                     taskInfo: {
                         title: 'dummy',
                         privacy: 'private',
                         taskGroup: {
                             id: -1,
-                            name: taskGroupModel.getDataValue('name')
+                            name: taskGroupModel.name
                         }
                     }
                 }).then(function (taskObject) {
@@ -95,8 +95,8 @@ describe('Task Model Logic Testing', function () {
                         title: 'dummy',
                         privacy: 'private',
                         taskGroup: {
-                            id: taskGroupModel.getDataValue('id'),
-                            name: taskGroupModel.getDataValue('name')
+                            id: taskGroupModel.id,
+                            name: taskGroupModel.name
                         }
                     }
                 }).then(function (taskObject) {
@@ -114,14 +114,14 @@ describe('Task Model Logic Testing', function () {
                 var title = 'dummy';
                 var privacy = 'private';
                 logic.Task.createTask({
-                    userId: testUserModel.getDataValue('id'),
+                    userId: testUserModel.id,
                     status: status,
                     taskInfo: {
                         title: title,
                         privacy: privacy,
                         taskGroup: {
-                            id: taskGroupModel.getDataValue('id'),
-                            name: taskGroupModel.getDataValue('name')
+                            id: taskGroupModel.id,
+                            name: taskGroupModel.name
                         }
                     }
                 }).then(function (taskObject) {
@@ -130,9 +130,9 @@ describe('Task Model Logic Testing', function () {
                     assert(taskObject.status === status);
                     assert(taskObject.taskInfo.title === title);
                     assert(taskObject.taskInfo.privacy === privacy);
-                    assert(taskObject.userId === testUserModel.getDataValue('id'));
-                    assert(taskObject.taskInfo.taskGroup.id === taskGroupModel.getDataValue('id'));
-                    assert(taskObject.taskInfo.taskGroup.name === taskGroupModel.getDataValue('name'));
+                    assert(taskObject.userId === testUserModel.id);
+                    assert(taskObject.taskInfo.taskGroup.id === taskGroupModel.id);
+                    assert(taskObject.taskInfo.taskGroup.name === taskGroupModel.name);
                     return Q.spread([logic.modelInstanceExists(models.Task, taskObject.id), logic.modelInstanceExists(models.TaskInfo, taskObject.taskInfo.id)], function (exists1, exists2) {
                         assert(exists1 && exists2);
                         return logic.destroyModelInstanceWithId(models.Task, taskObject.id).then(function () {

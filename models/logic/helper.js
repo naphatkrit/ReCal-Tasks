@@ -6,7 +6,7 @@ function modelInstanceExists(model, modelId) {
 }
 exports.modelInstanceExists = modelInstanceExists;
 function destroyModelInstance(model, modelInstance) {
-    return destroyModelInstanceWithId(model, modelInstance.getDataValue('id'));
+    return destroyModelInstanceWithId(model, modelInstance.id);
 }
 exports.destroyModelInstance = destroyModelInstance;
 function destroyModelInstanceWithId(model, id) {

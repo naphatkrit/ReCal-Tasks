@@ -21,8 +21,8 @@ var TaskLogic;
     function exportTaskGroup(taskGroupModel) {
         return Q.fcall(function () {
             return {
-                id: taskGroupModel.getDataValue('id'),
-                name: taskGroupModel.getDataValue('name')
+                id: taskGroupModel.id,
+                name: taskGroupModel.name
             };
         });
     }
@@ -32,9 +32,9 @@ var TaskLogic;
             .then(exportTaskGroup)
             .then(function (taskGroupObject) {
             return {
-                id: taskInfoModel.getDataValue('id'),
-                title: taskInfoModel.getDataValue('title'),
-                privacy: taskInfoModel.getDataValue('privacy'),
+                id: taskInfoModel.id,
+                title: taskInfoModel.title,
+                privacy: taskInfoModel.privacy,
                 taskGroup: taskGroupObject
             };
         });
@@ -46,9 +46,9 @@ var TaskLogic;
         return Q.spread([taskInfoPromise, userPromise], function (taskInfoModel, userModel) {
             return exportTaskInfo(taskInfoModel).then(function (taskInfoObject) {
                 return {
-                    id: taskModel.getDataValue('id'),
-                    userId: userModel.getDataValue('id'),
-                    status: taskModel.getDataValue('status'),
+                    id: taskModel.id,
+                    userId: userModel.id,
+                    status: taskModel.status,
                     taskInfo: taskInfoObject
                 };
             });
@@ -110,16 +110,16 @@ var TaskLogic;
                 models.TaskGroup.find(taskObject.taskInfo.taskGroup.id)
             ].map(PromiseAdapter.convertSequelize));
         }).spread(function (userModel, taskModel, taskInfoModel, taskGroupModel) {
-            if (taskModel.getDataValue('status') !== taskObject.status) {
+            if (taskModel.status !== taskObject.status) {
                 throw new Error("Cannot change task status using the updateTaskInfo method");
             }
-            if (taskInfoModel.getDataValue('privacy') !== taskObject.taskInfo.privacy) {
+            if (taskInfoModel.privacy !== taskObject.taskInfo.privacy) {
                 throw new Error("Cannot change task privacy using the updateTaskInfo method");
             }
-            if (taskModel.getDataValue('TaskInfoId') !== taskObject.taskInfo.id) {
+            if (taskModel.TaskInfoId !== taskObject.taskInfo.id) {
                 throw new Error("The given Task-TaskInfo relationship does not exist");
             }
-            if (taskInfoModel.getDataValue('TaskGroupId') !== taskObject.taskInfo.taskGroup.id) {
+            if (taskInfoModel.TaskGroupId !== taskObject.taskInfo.taskGroup.id) {
                 throw new Error("The given TaskInfo-TaskGroup relationship does not exist");
             }
             return [userModel, taskModel, taskInfoModel, taskGroupModel];

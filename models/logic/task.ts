@@ -33,8 +33,8 @@ module TaskLogic
         return Q.fcall(() =>
         {
             return {
-                id: taskGroupModel.getDataValue('id'),
-                name: taskGroupModel.getDataValue('name')
+                id: taskGroupModel.id,
+                name: taskGroupModel.name
             }
         })
     }
@@ -46,9 +46,9 @@ module TaskLogic
             .then((taskGroupObject) =>
         {
             return {
-                id: taskInfoModel.getDataValue('id'),
-                title: taskInfoModel.getDataValue('title'),
-                privacy: taskInfoModel.getDataValue('privacy'),
+                id: taskInfoModel.id,
+                title: taskInfoModel.title,
+                privacy: taskInfoModel.privacy,
                 taskGroup: taskGroupObject
             };
         })
@@ -63,9 +63,9 @@ module TaskLogic
             return exportTaskInfo(taskInfoModel).then((taskInfoObject) =>
             {
                 return {
-                    id: taskModel.getDataValue('id'),
-                    userId: userModel.getDataValue('id'),
-                    status: taskModel.getDataValue('status'),
+                    id: taskModel.id,
+                    userId: userModel.id,
+                    status: taskModel.status,
                     taskInfo: taskInfoObject
                 };
             })
@@ -143,19 +143,19 @@ module TaskLogic
             ].map(PromiseAdapter.convertSequelize))
         }).spread<any[]>((userModel, taskModel, taskInfoModel, taskGroupModel) =>
         {
-            if (taskModel.getDataValue('status') !== taskObject.status)
+            if (taskModel.status !== taskObject.status)
             {
                 throw new Error("Cannot change task status using the updateTaskInfo method")
             }
-            if (taskInfoModel.getDataValue('privacy') !== taskObject.taskInfo.privacy)
+            if (taskInfoModel.privacy !== taskObject.taskInfo.privacy)
             {
                 throw new Error("Cannot change task privacy using the updateTaskInfo method");
             }
-            if (taskModel.getDataValue('TaskInfoId') !== taskObject.taskInfo.id)
+            if (taskModel.TaskInfoId !== taskObject.taskInfo.id)
             {
                 throw new Error("The given Task-TaskInfo relationship does not exist");
             }
-            if (taskInfoModel.getDataValue('TaskGroupId') !== taskObject.taskInfo.taskGroup.id)
+            if (taskInfoModel.TaskGroupId !== taskObject.taskInfo.taskGroup.id)
             {
                 throw new Error("The given TaskInfo-TaskGroup relationship does not exist");
             }

@@ -12,7 +12,7 @@ export function modelInstanceExists(model: Sequelize.Model<any, any>, modelId: n
 
 export function destroyModelInstance(model, modelInstance): Q.Promise<any>
 {
-    return destroyModelInstanceWithId(model, modelInstance.getDataValue('id'))
+    return destroyModelInstanceWithId(model, modelInstance.id)
 }
 
 export function destroyModelInstanceWithId(model, id): Q.Promise<any>
