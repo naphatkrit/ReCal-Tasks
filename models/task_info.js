@@ -10,6 +10,11 @@ module.exports = function (sequelize, DataTypes) {
             values: ["complete", "incomplete"],
             defaultValue: "incomplete"
         },
+        privacy: {
+            type: DataTypes.ENUM,
+            values: ["private", "public"],
+            defaultValue: "private"
+        }
     }, {
         getterMethods: {
             createdAt: function () {
@@ -23,6 +28,7 @@ module.exports = function (sequelize, DataTypes) {
             associate: function (models) {
                 models.TaskInfo.hasMany(models.Task);
                 models.TaskInfo.belongsTo(models.TaskInfo, { as: "PreviousVersion" });
+                models.TaskInfo.belongsTo(models.TaskGroup);
             }
         },
         freezeTableName: true,
