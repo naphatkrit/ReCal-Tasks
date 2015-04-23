@@ -32,13 +32,11 @@ describe('Task Model Logic Testing', function () {
                             name: taskGroupModel.getDataValue('name')
                         }
                     }
-                })
-                    .then(function (taskObject) {
+                }).then(function (taskObject) {
                     assert(false);
                 }, function (error) {
                     assert(error);
-                })
-                    .finally(function () {
+                }).then(function () {
                     Q.all([destroyTestUser(testUserModel), logic.destroyModelInstance(models.TaskGroup, taskGroupModel)]).then(function () { done(); });
                 });
             });
@@ -57,13 +55,11 @@ describe('Task Model Logic Testing', function () {
                             name: taskGroupModel.getDataValue('name')
                         }
                     }
-                })
-                    .then(function (taskObject) {
+                }).then(function (taskObject) {
                     assert(false);
                 }, function (error) {
                     assert(error);
-                })
-                    .finally(function () {
+                }).then(function () {
                     Q.all([destroyTestUser(testUserModel), logic.destroyModelInstance(models.TaskGroup, taskGroupModel)]).then(function () { done(); });
                 });
             });
@@ -81,13 +77,11 @@ describe('Task Model Logic Testing', function () {
                             name: taskGroupModel.getDataValue('name')
                         }
                     }
-                })
-                    .then(function (taskObject) {
+                }).then(function (taskObject) {
                     assert(false);
                 }, function (error) {
                     assert(error);
-                })
-                    .finally(function () {
+                }).then(function () {
                     Q.all([destroyTestUser(testUserModel), logic.destroyModelInstance(models.TaskGroup, taskGroupModel)]).then(function () { done(); });
                 });
             });
@@ -105,13 +99,11 @@ describe('Task Model Logic Testing', function () {
                             name: taskGroupModel.getDataValue('name')
                         }
                     }
-                })
-                    .then(function (taskObject) {
+                }).then(function (taskObject) {
                     assert(false);
                 }, function (error) {
                     assert(error);
-                })
-                    .finally(function () {
+                }).then(function () {
                     Q.all([destroyTestUser(testUserModel), logic.destroyModelInstance(models.TaskGroup, taskGroupModel)]).then(function () { done(); });
                 });
             });
@@ -132,8 +124,7 @@ describe('Task Model Logic Testing', function () {
                             name: taskGroupModel.getDataValue('name')
                         }
                     }
-                })
-                    .then(function (taskObject) {
+                }).then(function (taskObject) {
                     assert(taskObject.id !== null && taskObject.id !== undefined);
                     assert(taskObject.taskInfo.id !== null && taskObject.taskInfo.id !== undefined);
                     assert(taskObject.status === status);
@@ -148,8 +139,11 @@ describe('Task Model Logic Testing', function () {
                             return logic.destroyModelInstanceWithId(models.TaskInfo, taskObject.taskInfo.id);
                         });
                     });
-                })
-                    .finally(function () {
+                }).fail(function (error) {
+                    console.log(error);
+                    console.log(error.stack);
+                    throw error;
+                }).then(function () {
                     Q.all([destroyTestUser(testUserModel), logic.destroyModelInstance(models.TaskGroup, taskGroupModel)]).then(function () { done(); });
                 });
             });

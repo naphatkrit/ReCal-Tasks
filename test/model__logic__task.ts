@@ -45,15 +45,15 @@ describe('Task Model Logic Testing', () =>
                             name: taskGroupModel.getDataValue('name')
                         }
                     }
-                })
-                    .then((taskObject) =>
-                {
-                    assert(false);
-                }, (error) =>
+                }).then(
+                    (taskObject) =>
+                    {
+                        assert(false);
+                    }, (error) =>
                     {
                         assert(error);
-                    })
-                    .finally(() =>
+                    }
+                ).then(() =>
                 {
                     Q.all([destroyTestUser(testUserModel), logic.destroyModelInstance(models.TaskGroup, taskGroupModel)]).then(() => { done(); })
                 })
@@ -75,15 +75,14 @@ describe('Task Model Logic Testing', () =>
                             name: taskGroupModel.getDataValue('name')
                         }
                     }
-                })
-                    .then((taskObject) =>
-                {
-                    assert(false);
-                }, (error) =>
+                }).then(
+                    (taskObject) =>
+                    {
+                        assert(false);
+                    }, (error) =>
                     {
                         assert(error);
-                    })
-                    .finally(() =>
+                    }).then(() =>
                 {
                     Q.all([destroyTestUser(testUserModel), logic.destroyModelInstance(models.TaskGroup, taskGroupModel)]).then(() => { done(); })
                 })
@@ -104,15 +103,14 @@ describe('Task Model Logic Testing', () =>
                             name: taskGroupModel.getDataValue('name')
                         }
                     }
-                })
-                    .then((taskObject) =>
-                {
-                    assert(false);
-                }, (error) =>
+                }).then(
+                    (taskObject) =>
+                    {
+                        assert(false);
+                    }, (error) =>
                     {
                         assert(error);
-                    })
-                    .finally(() =>
+                    }).then(() =>
                 {
                     Q.all([destroyTestUser(testUserModel), logic.destroyModelInstance(models.TaskGroup, taskGroupModel)]).then(() => { done(); })
                 })
@@ -133,15 +131,14 @@ describe('Task Model Logic Testing', () =>
                             name: taskGroupModel.getDataValue('name')
                         }
                     }
-                })
-                    .then((taskObject) =>
-                {
-                    assert(false);
-                }, (error) =>
+                }).then(
+                    (taskObject) =>
+                    {
+                        assert(false);
+                    }, (error) =>
                     {
                         assert(error);
-                    })
-                    .finally(() =>
+                    }).then(() =>
                 {
                     Q.all([destroyTestUser(testUserModel), logic.destroyModelInstance(models.TaskGroup, taskGroupModel)]).then(() => { done(); })
                 })
@@ -165,8 +162,7 @@ describe('Task Model Logic Testing', () =>
                             name: taskGroupModel.getDataValue('name')
                         }
                     }
-                })
-                    .then((taskObject) =>
+                }).then((taskObject) =>
                 {
                     assert(taskObject.id !== null && taskObject.id !== undefined);
                     assert(taskObject.taskInfo.id !== null && taskObject.taskInfo.id !== undefined);
@@ -184,8 +180,11 @@ describe('Task Model Logic Testing', () =>
                             return logic.destroyModelInstanceWithId(models.TaskInfo, taskObject.taskInfo.id)
                         })
                     });
-                })
-                    .finally(() =>
+                }).fail((error)=>{
+                    console.log(error);
+                    console.log(error.stack);
+                    throw error;
+                }).then(() =>
                 {
                     Q.all([destroyTestUser(testUserModel), logic.destroyModelInstance(models.TaskGroup, taskGroupModel)]).then(() => { done(); })
                 })
