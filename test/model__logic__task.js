@@ -16,8 +16,8 @@ function createTaskGroup() {
 function destroyTestUser(testUserModel) {
     return logic.destroyModelInstance(models.User, testUserModel);
 }
-describe('Task Model Logic Testing', function () {
-    describe('createTask() Unit Tests', function () {
+describe('Task Model Logic Unit Tests', function () {
+    describe('createTask()', function () {
         it('Should not accept objects with task ID', function (done) {
             Q.spread([createTestUser(), createTaskGroup()], function (testUserModel, taskGroupModel) {
                 logic.Task.createTask({
@@ -145,6 +145,228 @@ describe('Task Model Logic Testing', function () {
                     throw error;
                 }).then(function () {
                     Q.all([destroyTestUser(testUserModel), logic.destroyModelInstance(models.TaskGroup, taskGroupModel)]).then(function () { done(); });
+                });
+            });
+        });
+    });
+    describe('updateTaskInfo()', function () {
+        function setUpTestTask() {
+            return Q.spread([createTestUser(), createTaskGroup()], function (testUserModel, taskGroupModel) {
+                return Q.all([
+                    Q.fcall(function () { return testUserModel; }),
+                    Q.fcall(function () { return taskGroupModel; }),
+                    logic.Task.createTask({
+                        userId: testUserModel.id,
+                        status: 'complete',
+                        taskInfo: {
+                            title: 'dummy',
+                            privacy: 'private',
+                            taskGroup: {
+                                id: taskGroupModel.id,
+                                name: taskGroupModel.name
+                            }
+                        }
+                    })
+                ]);
+            });
+        }
+        function cleanUp(testUserModel, taskGroupModel, taskObject) {
+            return logic.destroyModelInstanceWithId(models.Task, taskObject.id).then(function () {
+                return logic.destroyModelInstanceWithId(models.TaskInfo, taskObject.taskInfo.id);
+            }).then(function () {
+                return Q.all([
+                    destroyTestUser(testUserModel),
+                    logic.destroyModelInstance(models.TaskGroup, taskGroupModel)
+                ]);
+            }).then(function () {
+                return;
+            });
+        }
+        it('Should not accept objects without task ID', function (done) {
+            Q.spread([createTestUser(), createTaskGroup()], function (testUserModel, taskGroupModel) {
+                logic.Task.updateTaskInfo({
+                    userId: testUserModel.id,
+                    status: 'complete',
+                    taskInfo: {
+                        id: 0,
+                        title: 'dummy',
+                        privacy: 'private',
+                        taskGroup: {
+                            id: taskGroupModel.id,
+                            name: taskGroupModel.name
+                        }
+                    }
+                }).then(function (taskObject) {
+                    assert(false);
+                }, function (error) {
+                    assert(error);
+                }).then(function () {
+                    Q.all([destroyTestUser(testUserModel), logic.destroyModelInstance(models.TaskGroup, taskGroupModel)]).then(function () { done(); });
+                });
+            });
+        });
+        it('Should not accept objects without task info ID', function (done) {
+            Q.spread([createTestUser(), createTaskGroup()], function (testUserModel, taskGroupModel) {
+                logic.Task.updateTaskInfo({
+                    id: 0,
+                    userId: testUserModel.id,
+                    status: 'complete',
+                    taskInfo: {
+                        title: 'dummy',
+                        privacy: 'private',
+                        taskGroup: {
+                            id: taskGroupModel.id,
+                            name: taskGroupModel.name
+                        }
+                    }
+                }).then(function (taskObject) {
+                    assert(false);
+                }, function (error) {
+                    assert(error);
+                }).then(function () {
+                    Q.all([destroyTestUser(testUserModel), logic.destroyModelInstance(models.TaskGroup, taskGroupModel)]).then(function () { done(); });
+                });
+            });
+        });
+        it('Should not accept objects with nonexistent task group ID', function (done) {
+            Q.spread([createTestUser(), createTaskGroup()], function (testUserModel, taskGroupModel) {
+                logic.Task.updateTaskInfo({
+                    userId: testUserModel.id,
+                    status: 'complete',
+                    taskInfo: {
+                        title: 'dummy',
+                        privacy: 'private',
+                        taskGroup: {
+                            id: -1,
+                            name: taskGroupModel.name
+                        }
+                    }
+                }).then(function (taskObject) {
+                    assert(false);
+                }, function (error) {
+                    assert(error);
+                }).then(function () {
+                    Q.all([destroyTestUser(testUserModel), logic.destroyModelInstance(models.TaskGroup, taskGroupModel)]).then(function () { done(); });
+                });
+            });
+        });
+        it('Should not accept objects with nonexistent user ID', function (done) {
+            Q.spread([createTestUser(), createTaskGroup()], function (testUserModel, taskGroupModel) {
+                logic.Task.updateTaskInfo({
+                    id: 0,
+                    userId: -1,
+                    status: 'complete',
+                    taskInfo: {
+                        id: 0,
+                        title: 'dummy',
+                        privacy: 'private',
+                        taskGroup: {
+                            id: taskGroupModel.id,
+                            name: taskGroupModel.name
+                        }
+                    }
+                }).then(function (taskObject) {
+                    assert(false);
+                }, function (error) {
+                    assert(error);
+                }).then(function () {
+                    Q.all([destroyTestUser(testUserModel), logic.destroyModelInstance(models.TaskGroup, taskGroupModel)]).then(function () { done(); });
+                });
+            });
+        });
+        it('Should not accept objects with nonexistent task group ID', function (done) {
+            Q.spread([createTestUser(), createTaskGroup()], function (testUserModel, taskGroupModel) {
+                logic.Task.updateTaskInfo({
+                    id: 0,
+                    userId: testUserModel.id,
+                    status: 'complete',
+                    taskInfo: {
+                        id: 0,
+                        title: 'dummy',
+                        privacy: 'private',
+                        taskGroup: {
+                            id: -1,
+                            name: taskGroupModel.name
+                        }
+                    }
+                }).then(function (taskObject) {
+                    assert(false);
+                }, function (error) {
+                    assert(error);
+                }).then(function () {
+                    Q.all([destroyTestUser(testUserModel), logic.destroyModelInstance(models.TaskGroup, taskGroupModel)]).then(function () { done(); });
+                });
+            });
+        });
+        it('Should not accept objects with nonexistent task ID', function (done) {
+            Q.spread([createTestUser(), createTaskGroup()], function (testUserModel, taskGroupModel) {
+                logic.Task.updateTaskInfo({
+                    id: -1,
+                    userId: testUserModel.id,
+                    status: 'complete',
+                    taskInfo: {
+                        id: 0,
+                        title: 'dummy',
+                        privacy: 'private',
+                        taskGroup: {
+                            id: taskGroupModel.id,
+                            name: taskGroupModel.name
+                        }
+                    }
+                }).then(function (taskObject) {
+                    assert(false);
+                }, function (error) {
+                    assert(error);
+                }).then(function () {
+                    Q.all([destroyTestUser(testUserModel), logic.destroyModelInstance(models.TaskGroup, taskGroupModel)]).then(function () { done(); });
+                });
+            });
+        });
+        it('Should not accept objects with nonexistent task info ID', function (done) {
+            Q.spread([createTestUser(), createTaskGroup()], function (testUserModel, taskGroupModel) {
+                logic.Task.updateTaskInfo({
+                    id: 0,
+                    userId: testUserModel.id,
+                    status: 'complete',
+                    taskInfo: {
+                        id: -1,
+                        title: 'dummy',
+                        privacy: 'private',
+                        taskGroup: {
+                            id: taskGroupModel.id,
+                            name: taskGroupModel.name
+                        }
+                    }
+                }).then(function (taskObject) {
+                    assert(false);
+                }, function (error) {
+                    assert(error);
+                }).then(function () {
+                    Q.all([destroyTestUser(testUserModel), logic.destroyModelInstance(models.TaskGroup, taskGroupModel)]).then(function () { done(); });
+                });
+            });
+        });
+        it('Should not allow modification of task status', function (done) {
+            setUpTestTask().spread(function (testUserModel, taskGroupModel, taskObject) {
+                taskObject.status = 'incomplete';
+                logic.Task.updateTaskInfo(taskObject).then(function (newTaskObject) {
+                    assert(false);
+                }, function (error) {
+                    assert(error);
+                }).then(function () {
+                    cleanUp(testUserModel, taskGroupModel, taskObject).then(function () { done(); });
+                });
+            });
+        });
+        it('Should not allow modification of task privacy', function (done) {
+            setUpTestTask().spread(function (testUserModel, taskGroupModel, taskObject) {
+                taskObject.taskInfo.privacy = 'public';
+                logic.Task.updateTaskInfo(taskObject).then(function (newTaskObject) {
+                    assert(false);
+                }, function (error) {
+                    assert(error);
+                }).then(function () {
+                    cleanUp(testUserModel, taskGroupModel, taskObject).then(function () { done(); });
                 });
             });
         });
