@@ -25,18 +25,16 @@ var User;
         return this._tasks;
     });
     userSchema.virtual('tasks').set(function (newValue) {
+        ReCalLib.Invariants.check(ReCalLib.Invariants.Predefined.isDefinedAndNotNull(newValue));
         this._tasks = newValue;
     });
     userSchema.plugin(updatedStatusPlugin);
     User.model = mongoose.model('User', userSchema);
     function invariants(user) {
-        var _this = this;
         var Invariants = ReCalLib.Invariants;
         return [
-            function () {
-                return _this.username.length > 0;
-            }
-        ].reduce(Invariants.chain, Invariants.alwaysTrue);
+            Invariants.Predefined.isNotEmpty(user.username)
+        ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
     }
     User.invariants = invariants;
 })(User || (User = {}));

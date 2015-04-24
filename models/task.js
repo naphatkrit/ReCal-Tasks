@@ -1,4 +1,5 @@
 var mongoose = require("mongoose");
+var updatedStatusPlugin = require("./plugins/updated_status");
 var ReCalLib = require("../lib/lib");
 var Task;
 (function (Task) {
@@ -10,17 +11,22 @@ var Task;
     ;
     var taskSchema = new mongoose.Schema({
         _state: Number,
+        _taskInfo: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'TaskInfo'
+        }
     }, {
         autoIndex: process.env.NODE_ENV === 'development',
     });
     function stateInvariants(state) {
         var Invariants = ReCalLib.Invariants;
-        return [function () {
-                return state !== null && state !== undefined;
-            }, function () {
+        return [
+            Invariants.Predefined.isDefinedAndNotNull(state),
+            function () {
                 var stateName = TaskState[state];
                 return stateName !== null || stateName !== undefined;
-            }].reduce(Invariants.chain, Invariants.alwaysTrue);
+            }
+        ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
     }
     taskSchema.virtual('state').get(function () {
         if (this._state === null || this._state === undefined) {
@@ -33,12 +39,22 @@ var Task;
         ReCalLib.Invariants.check(stateInvariants(newState));
         this._state = newState;
     });
+    taskSchema.virtual('taskInfo').get(function () {
+        if (this._taskInfo === undefined) {
+            return null;
+        }
+        return this._taskInfo;
+    });
+    taskSchema.virtual('taskInfo').set(function (newValue) {
+        this._taskInfo = newValue;
+    });
+    taskSchema.plugin(updatedStatusPlugin);
     Task.model = mongoose.model("Task", taskSchema);
     function invariants(task) {
         var Invariants = ReCalLib.Invariants;
         return [
             stateInvariants(task.state)
-        ].reduce(Invariants.chain, Invariants.alwaysTrue);
+        ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
     }
     Task.invariants = invariants;
 })(Task || (Task = {}));

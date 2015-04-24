@@ -30,7 +30,7 @@
     "files": [
         "./app.ts",
         "./authentication/index.ts",
-        "./lib/Invariants.ts",
+        "./lib/invariants.ts",
         "./lib/lib.ts",
         "./lib/promise_adapter.ts",
         "./models.old/index.ts",
@@ -46,6 +46,7 @@
         "./models/logic/index.ts",
         "./models/plugins/updated_status.ts",
         "./models/task.ts",
+        "./models/task_info.ts",
         "./models/user.ts",
         "./routes/index.ts",
         "./routes/users.ts",
