@@ -1,4 +1,5 @@
 import mongoose = require('mongoose');
+// TODO doesn't work with find, findOneAndUpdate, etc. See http://mongoosejs.com/docs/middleware.html
 export = function updatedStatusPlugin (schema: mongoose.Schema, options) {
     schema.add({
         lastModified: Date,
@@ -12,7 +13,6 @@ export = function updatedStatusPlugin (schema: mongoose.Schema, options) {
         }
         next();
     })
-
     if (options && options.index) {
         schema.path('lastModified').index(options.index);
         schema.path('created').index(options.index);

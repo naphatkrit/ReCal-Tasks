@@ -13,6 +13,8 @@ passport.use(new (require('passport-cas').Strategy)({
             if (err) {
                 done(err);
             } else {
+                doc.save(); // needed to trigger middleware
+                console.log(doc);
                 done(null, {
                     username: login,
                 });

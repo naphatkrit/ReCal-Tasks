@@ -12,6 +12,8 @@ passport.use(new (require('passport-cas').Strategy)({
             done(err);
         }
         else {
+            doc.save();
+            console.log(doc);
             done(null, {
                 username: login,
             });
