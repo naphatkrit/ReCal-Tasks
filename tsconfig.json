@@ -41,6 +41,7 @@
         "./models.old/task_group.ts",
         "./models.old/task_info.ts",
         "./models.old/user.ts",
+        "./models/index.ts",
         "./models/logic/helper.ts",
         "./models/logic/index.ts",
         "./models/plugins/updated_status.ts",
