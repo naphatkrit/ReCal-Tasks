@@ -41,6 +41,8 @@
         "./models.old/task_group.ts",
         "./models.old/task_info.ts",
         "./models.old/user.ts",
+        "./models/logic/helper.ts",
+        "./models/logic/index.ts",
         "./models/plugins/updated_status.ts",
         "./models/user.ts",
         "./routes/index.ts",
@@ -61,7 +63,6 @@
         "./typings/passport/passport.d.ts",
         "./typings/q/Q.d.ts",
         "./typings/sequelize/sequelize.d.ts",
-        "./typings/serve-favicon/serve-favicon.d.ts",
-        "./typings/tsd.d.ts"
+        "./typings/serve-favicon/serve-favicon.d.ts"
     ]
 }

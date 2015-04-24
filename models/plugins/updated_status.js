@@ -1,7 +1,31 @@
 module.exports = function updatedStatusPlugin(schema, options) {
     schema.add({
-        lastModified: Date,
-        created: Date
+        _lastModified: Date,
+        _created: Date
+    });
+    schema.virtual('lastModified').get(function () {
+        if (this._lastModified === undefined) {
+            return null;
+        }
+        return this._lastModified;
+    });
+    schema.virtual('lastModified').set(function (newValue) {
+        if (newValue === undefined || newValue === null) {
+            return;
+        }
+        this._lastModified = newValue;
+    });
+    schema.virtual('created').get(function () {
+        if (this._created === undefined) {
+            return null;
+        }
+        return this._created;
+    });
+    schema.virtual('created').set(function (newValue) {
+        if (newValue === undefined || newValue === null) {
+            return;
+        }
+        this._created = newValue;
     });
     schema.pre('save', function (next) {
         var date = new Date();

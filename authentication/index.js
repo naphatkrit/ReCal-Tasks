@@ -1,23 +1,15 @@
 var passport = require('passport');
 var url = require('url');
 var User = require("../models/user");
+var ModelLogic = require("../models/logic/index");
 passport.use(new (require('passport-cas').Strategy)({
     ssoBaseURL: process.env.CAS_URL,
     passReqToCallback: true,
 }, function (req, login, done) {
-    User.findOneAndUpdate({ username: login }, { $set: { username: login } }, {
-        upsert: true,
-    }, function (err, doc) {
-        if (err) {
-            done(err);
-        }
-        else {
-            doc.save();
-            console.log(doc);
-            done(null, {
-                username: login,
-            });
-        }
+    ModelLogic.findOrCreate(User, { _username: login }).then(function (user) {
+        done(null, {
+            username: user.username
+        });
     });
 }));
 passport.serializeUser(function (user, done) {

@@ -1,24 +1,19 @@
 import passport = require('passport');
 import url = require('url');
+
 import User = require("../models/user");
+import ModelLogic = require("../models/logic/index");
+
 
 passport.use(new (require('passport-cas').Strategy)({
     ssoBaseURL: process.env.CAS_URL,
     passReqToCallback: true,
 }, function(req, login, done)
     {
-        User.findOneAndUpdate({username: login}, { $set: {username: login}}, {
-            upsert: true,
-        },(err, doc)=>{
-            if (err) {
-                done(err);
-            } else {
-                doc.save(); // needed to trigger middleware
-                console.log(doc);
-                done(null, {
-                    username: login,
-                });
-            }
+        ModelLogic.findOrCreate(User, {_username: login}).then((user: any)=>{
+            done(null, {
+                username: user.username
+            })
         })
     }));
 
