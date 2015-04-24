@@ -1,11 +1,21 @@
 var passport = require('passport');
 var url = require('url');
+var User = require("../models/user");
 passport.use(new (require('passport-cas').Strategy)({
     ssoBaseURL: process.env.CAS_URL,
     passReqToCallback: true,
 }, function (req, login, done) {
-    done(null, {
-        username: login,
+    User.findOneAndUpdate({ username: login }, { $set: { username: login } }, {
+        upsert: true,
+    }, function (err, doc) {
+        if (err) {
+            done(err);
+        }
+        else {
+            done(null, {
+                username: login,
+            });
+        }
     });
 }));
 passport.serializeUser(function (user, done) {
@@ -24,8 +34,6 @@ exports.session = function () {
     });
 };
 function ensureAuthenticated(req, res, next) {
-    console.log("Ensuring authentication");
-    console.log(req._passport);
     if (req.isAuthenticated()) {
         return next();
     }

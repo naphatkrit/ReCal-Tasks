@@ -10,3 +10,5 @@ let userSchema = new mongoose.Schema({
 userSchema.plugin(updatedStatusPlugin);
 
 let User = mongoose.model('User', userSchema);
+
+export = User;

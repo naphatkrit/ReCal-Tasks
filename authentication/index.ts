@@ -7,10 +7,17 @@ passport.use(new (require('passport-cas').Strategy)({
     passReqToCallback: true,
 }, function(req, login, done)
     {
-        // let ticket = req.query.ticket;
-        done(null, {
-            username: login,
-        });
+        User.findOneAndUpdate({username: login}, { $set: {username: login}}, {
+            upsert: true,
+        },(err, doc)=>{
+            if (err) {
+                done(err);
+            } else {
+                done(null, {
+                    username: login,
+                });
+            }
+        })
     }));
 
 // we keep a dictionary of user data instead of a user model instance to prevent staleness
@@ -43,8 +50,6 @@ export var session = function()
 //   login page.
 export function ensureAuthenticated(req, res, next)
 {
-    console.log("Ensuring authentication");
-    console.log(req._passport);
     if (req.isAuthenticated()) { return next(); }
     res.redirect('/login')
 }
