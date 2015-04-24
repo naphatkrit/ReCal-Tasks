@@ -1,18 +1,11 @@
 var passport = require('passport');
 var url = require('url');
-var models = require("../models/index");
 passport.use(new (require('passport-cas').Strategy)({
     ssoBaseURL: process.env.CAS_URL,
     passReqToCallback: true,
 }, function (req, login, done) {
-    models.User.findOrCreate({
-        where: {
-            username: login
-        }
-    }).then(function (userObject) {
-        done(null, {
-            username: login,
-        });
+    done(null, {
+        username: login,
     });
 }));
 passport.serializeUser(function (user, done) {

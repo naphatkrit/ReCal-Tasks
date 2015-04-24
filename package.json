@@ -13,6 +13,7 @@
     "express-session": "^1.11.1",
     "jade": "~1.9.2",
     "mocha": "^2.2.4",
+    "mongoose": "^4.0.2",
     "morgan": "~1.5.1",
     "passport": "^0.2.1",
     "passport-cas": "https://github.com/naphatkrit/passport-cas/tarball/master",

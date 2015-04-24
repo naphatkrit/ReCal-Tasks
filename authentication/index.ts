@@ -1,6 +1,6 @@
 import passport = require('passport');
 import url = require('url');
-import models = require("../models/index");
+import User = require("../models/user");
 
 passport.use(new (require('passport-cas').Strategy)({
     ssoBaseURL: process.env.CAS_URL,
@@ -8,15 +8,8 @@ passport.use(new (require('passport-cas').Strategy)({
 }, function(req, login, done)
     {
         // let ticket = req.query.ticket;
-        models.User.findOrCreate({
-            where: {
-                username: login
-            }
-        }).then((userObject) =>
-        {
-            done(null, {
-                username: login,
-            });
+        done(null, {
+            username: login,
         });
     }));
 

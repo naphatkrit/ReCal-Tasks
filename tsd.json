@@ -9,7 +9,7 @@
       "commit": "cb08e83dd87ace1202d1032a8f275b3efacde5c3"
     },
     "node/node.d.ts": {
-      "commit": "cb08e83dd87ace1202d1032a8f275b3efacde5c3"
+      "commit": "51d426745a1c0a88ca3234102f0a87ab3fcff334"
     },
     "serve-favicon/serve-favicon.d.ts": {
       "commit": "e57df787f4e11601625d7e1c1b2ee351b97a18a1"
@@ -43,6 +43,9 @@
     },
     "mocha/mocha.d.ts": {
       "commit": "25da006de5de3d2e31252fdc988296c7c212f231"
+    },
+    "mongoose/mongoose.d.ts": {
+      "commit": "51d426745a1c0a88ca3234102f0a87ab3fcff334"
     }
   }
 }
