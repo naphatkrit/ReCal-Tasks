@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var ReCalLib = require("../lib/lib");
 var updatedStatusPlugin = require("./plugins/updated_status");
 var userSchema = new mongoose.Schema({
     _username: String,
@@ -13,4 +14,14 @@ userSchema.virtual('username').get(function () {
 });
 userSchema.plugin(updatedStatusPlugin);
 var User = mongoose.model('User', userSchema);
-module.exports = User;
+exports.model = User;
+function invariants(user) {
+    var _this = this;
+    var Invariants = ReCalLib.Invariants;
+    return [
+        function () {
+            return _this.username.length > 0;
+        }
+    ].reduce(Invariants.chain, Invariants.alwaysTrue);
+}
+exports.invariants = invariants;

@@ -10,7 +10,7 @@ passport.use(new (require('passport-cas').Strategy)({
     passReqToCallback: true,
 }, function(req, login, done)
     {
-        ModelLogic.findOrCreate(User, {_username: login}).then((user: any)=>{
+        ModelLogic.findOrCreate(User.model, {_username: login}).then((user: any)=>{
             done(null, {
                 username: user.username
             })

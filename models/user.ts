@@ -5,6 +5,7 @@ import updatedStatusPlugin = require("./plugins/updated_status");
 
 let userSchema = new mongoose.Schema({
     _username: String,
+
 }, {
     autoIndex: process.env.NODE_ENV === 'development',
 })
@@ -20,4 +21,13 @@ userSchema.plugin(updatedStatusPlugin);
 
 let User = mongoose.model('User', userSchema);
 
-export = User;
+export var model = User;
+
+export function invariants(user) {
+    let Invariants = ReCalLib.Invariants;
+    return [
+        ()=>{
+            return this.username.length > 0;
+        }
+    ].reduce(Invariants.chain, Invariants.alwaysTrue);
+}

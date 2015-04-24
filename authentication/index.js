@@ -6,7 +6,7 @@ passport.use(new (require('passport-cas').Strategy)({
     ssoBaseURL: process.env.CAS_URL,
     passReqToCallback: true,
 }, function (req, login, done) {
-    ModelLogic.findOrCreate(User, { _username: login }).then(function (user) {
+    ModelLogic.findOrCreate(User.model, { _username: login }).then(function (user) {
         done(null, {
             username: user.username
         });

@@ -44,6 +44,7 @@
         "./models/logic/helper.ts",
         "./models/logic/index.ts",
         "./models/plugins/updated_status.ts",
+        "./models/task.ts",
         "./models/user.ts",
         "./routes/index.ts",
         "./routes/users.ts",

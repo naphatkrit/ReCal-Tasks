@@ -2,7 +2,7 @@ import assert = require("assert");
 
 module Invariants
 {
-    type Invariant = ()=>boolean;
+    export type Invariant = ()=>boolean;
     let debug = Number(process.env.RECAL_DEBUG || "0") !== 0;
     export let alwaysTrue: Invariant = () => { return true; }
     export let alwaysFalse: Invariant = () => { return false; }
