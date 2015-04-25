@@ -7,7 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('ReCal-Tasks:server');
 var http = require('http');
-var mongoose = require('mongoose');
+var Models = require('../models/index');
 
 /**
  * Get port from environment and store in Express.
@@ -16,11 +16,7 @@ var mongoose = require('mongoose');
 var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
-mongoose.connect(process.env.DATABASE_URL);
-
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function(callback){
+Models.connection.once('open', function(callback){
     /**
      * Create HTTP server.
      */
