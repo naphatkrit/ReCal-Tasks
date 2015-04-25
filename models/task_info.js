@@ -26,6 +26,10 @@ var TaskInfo;
         _previousVersion: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'TaskInfo'
+        },
+        _taskGroup: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'TaskGroup'
         }
     });
     taskInfoSchema.virtual('title').get(function () {
@@ -67,6 +71,16 @@ var TaskInfo;
     });
     taskInfoSchema.virtual('previousVersion').set(function (newValue) {
         this._previousVersion = newValue;
+    });
+    taskInfoSchema.virtual('taskGroup').get(function () {
+        if (this._taskGroup === undefined || this._taskGroup === null) {
+            return null;
+        }
+        return this._taskGroup;
+    });
+    taskInfoSchema.virtual('taskGroup').set(function (newValue) {
+        ReCalLib.Invariants.check(ReCalLib.Invariants.Predefined.isDefinedAndNotNull(newValue));
+        this._taskGroup = newValue;
     });
     taskInfoSchema.plugin(updatedStatusPlugin);
     TaskInfo.model = mongoose.model('TaskInfo', taskInfoSchema);

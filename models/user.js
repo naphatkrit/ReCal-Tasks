@@ -5,6 +5,10 @@ var User;
 (function (User) {
     var userSchema = new mongoose.Schema({
         _username: String,
+        _taskGroups: [{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'TaskGroup'
+            }],
         _tasks: [{
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'Task'
@@ -27,6 +31,16 @@ var User;
     userSchema.virtual('tasks').set(function (newValue) {
         ReCalLib.Invariants.check(ReCalLib.Invariants.Predefined.isDefinedAndNotNull(newValue));
         this._tasks = newValue;
+    });
+    userSchema.virtual('taskGroups').get(function () {
+        if (this._taskGroups === undefined || this._taskGroups === null) {
+            return [];
+        }
+        return this._taskGroups;
+    });
+    userSchema.virtual('taskGroups').set(function (newValue) {
+        ReCalLib.Invariants.check(ReCalLib.Invariants.Predefined.isDefinedAndNotNull(newValue));
+        this._taskGroups = newValue;
     });
     userSchema.plugin(updatedStatusPlugin);
     User.model = mongoose.model('User', userSchema);

@@ -46,6 +46,7 @@
         "./models/logic/index.ts",
         "./models/plugins/updated_status.ts",
         "./models/task.ts",
+        "./models/task_group.ts",
         "./models/task_info.ts",
         "./models/user.ts",
         "./routes/index.ts",

@@ -8,6 +8,10 @@ module User
 {
     let userSchema = new mongoose.Schema({
         _username: String,
+        _taskGroups: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'TaskGroup'
+        }],
         _tasks: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Task'
@@ -37,6 +41,17 @@ module User
     {
         ReCalLib.Invariants.check(ReCalLib.Invariants.Predefined.isDefinedAndNotNull(newValue));
         this._tasks = newValue;
+    })
+    userSchema.virtual('taskGroups').get(function()
+    {
+        if (this._taskGroups === undefined || this._taskGroups === null) {
+            return [];
+        }
+        return this._taskGroups;
+    })
+    userSchema.virtual('taskGroups').set(function(newValue) {
+        ReCalLib.Invariants.check(ReCalLib.Invariants.Predefined.isDefinedAndNotNull(newValue));
+        this._taskGroups = newValue;
     })
 
     userSchema.plugin(updatedStatusPlugin);

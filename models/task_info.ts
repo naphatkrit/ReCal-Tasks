@@ -26,6 +26,10 @@ module TaskInfo
         _previousVersion: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'TaskInfo'
+        },
+        _taskGroup: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'TaskGroup'
         }
     })
 
@@ -80,6 +84,16 @@ module TaskInfo
     taskInfoSchema.virtual('previousVersion').set(function(newValue)
     {
         this._previousVersion = newValue; // ok to be null or undefined
+    })
+    taskInfoSchema.virtual('taskGroup').get(function() {
+        if (this._taskGroup === undefined || this._taskGroup === null) {
+            return null;
+        }
+        return this._taskGroup;
+    })
+    taskInfoSchema.virtual('taskGroup').set(function(newValue) {
+        ReCalLib.Invariants.check(ReCalLib.Invariants.Predefined.isDefinedAndNotNull(newValue));
+        this._taskGroup = newValue;
     })
 
     taskInfoSchema.plugin(updatedStatusPlugin);
