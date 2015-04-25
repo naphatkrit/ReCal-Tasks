@@ -44,12 +44,14 @@ module User
     })
     userSchema.virtual('taskGroups').get(function()
     {
-        if (this._taskGroups === undefined || this._taskGroups === null) {
+        if (this._taskGroups === undefined || this._taskGroups === null)
+        {
             return [];
         }
         return this._taskGroups;
     })
-    userSchema.virtual('taskGroups').set(function(newValue) {
+    userSchema.virtual('taskGroups').set(function(newValue)
+    {
         ReCalLib.Invariants.check(ReCalLib.Invariants.Predefined.isDefinedAndNotNull(newValue));
         this._taskGroups = newValue;
     })

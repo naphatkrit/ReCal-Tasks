@@ -85,13 +85,16 @@ module TaskInfo
     {
         this._previousVersion = newValue; // ok to be null or undefined
     })
-    taskInfoSchema.virtual('taskGroup').get(function() {
-        if (this._taskGroup === undefined || this._taskGroup === null) {
+    taskInfoSchema.virtual('taskGroup').get(function()
+    {
+        if (this._taskGroup === undefined || this._taskGroup === null)
+        {
             return null;
         }
         return this._taskGroup;
     })
-    taskInfoSchema.virtual('taskGroup').set(function(newValue) {
+    taskInfoSchema.virtual('taskGroup').set(function(newValue)
+    {
         ReCalLib.Invariants.check(ReCalLib.Invariants.Predefined.isDefinedAndNotNull(newValue));
         this._taskGroup = newValue;
     })
