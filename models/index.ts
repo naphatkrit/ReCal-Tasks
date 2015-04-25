@@ -1,6 +1,7 @@
 import mongoose = require('mongoose');
 
-module Models {
+module Models
+{
     mongoose.connect(process.env.DATABASE_URL);
 
     var db = mongoose.connection;

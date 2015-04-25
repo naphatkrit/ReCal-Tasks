@@ -86,9 +86,11 @@ var TaskInfo;
     TaskInfo.model = mongoose.model('TaskInfo', taskInfoSchema);
     function invariants(taskInfo) {
         var Invariants = ReCalLib.Invariants;
-        return [
-            privacyInvariants(taskInfo.privacy),
-        ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
+        return Q.fcall(function () {
+            return [
+                privacyInvariants(taskInfo.privacy),
+            ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
+        });
     }
     TaskInfo.invariants = invariants;
 })(TaskInfo || (TaskInfo = {}));

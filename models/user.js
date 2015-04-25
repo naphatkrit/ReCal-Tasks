@@ -44,11 +44,21 @@ var User;
     });
     userSchema.plugin(updatedStatusPlugin);
     User.model = mongoose.model('User', userSchema);
-    function invariants(user) {
+    function invariants(userId) {
         var Invariants = ReCalLib.Invariants;
-        return [
-            Invariants.Predefined.isNotEmpty(user.username)
-        ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
+        return ReCalLib.PromiseAdapter.convertMongooseQuery(User.model.findById(userId).populate('_taskGroups _tasks')).then(function (user) {
+            return ReCalLib.PromiseAdapter.convertMongoosePromise(mongoose.model('TaskGroup').populate(user, { path: '_taskGroups._taskInfo' }));
+        }).then(function (user) {
+            return [
+                Invariants.Predefined.isNotEmpty(user.username),
+                function () {
+                    return user.tasks.map(function (task) {
+                        var filtered = user.taskGroups.filter(function (group) { group.id === task.taskInfo.id; });
+                        return filtered.length > 0;
+                    }).reduce(function (x, y) { x && y; }, true);
+                }
+            ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
+        });
     }
     User.invariants = invariants;
 })(User || (User = {}));

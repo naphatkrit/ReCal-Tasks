@@ -44,12 +44,14 @@ module User
     })
     userSchema.virtual('taskGroups').get(function()
     {
-        if (this._taskGroups === undefined || this._taskGroups === null) {
+        if (this._taskGroups === undefined || this._taskGroups === null)
+        {
             return [];
         }
         return this._taskGroups;
     })
-    userSchema.virtual('taskGroups').set(function(newValue) {
+    userSchema.virtual('taskGroups').set(function(newValue)
+    {
         ReCalLib.Invariants.check(ReCalLib.Invariants.Predefined.isDefinedAndNotNull(newValue));
         this._taskGroups = newValue;
     })
@@ -58,12 +60,27 @@ module User
 
     export var model = mongoose.model('User', userSchema);
 
-    export function invariants(user)
+    export function invariants(userId): Q.Promise<() => boolean>
     {
         let Invariants = ReCalLib.Invariants;
-        return [
-            Invariants.Predefined.isNotEmpty(user.username)
-        ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
+        return ReCalLib.PromiseAdapter.convertMongooseQuery(model.findById(userId).populate('_taskGroups _tasks')).then((user) =>
+        {
+            return ReCalLib.PromiseAdapter.convertMongoosePromise(mongoose.model('TaskGroup').populate(user, { path: '_taskGroups._taskInfo' }))
+        }).then((user: any) =>
+        {
+            return [
+                Invariants.Predefined.isNotEmpty(user.username),
+                () =>
+                {
+                    // check if the user's tasks list is consistent with the user's task groups
+                    return user.tasks.map((task) =>
+                    {
+                        let filtered = user.taskGroups.filter((group) => { group.id === task.taskInfo.id })
+                        return filtered.length > 0;
+                    }).reduce((x, y) => { x && y }, true)
+                }
+            ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
+        })
     }
 }
 

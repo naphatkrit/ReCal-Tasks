@@ -28,6 +28,16 @@ module PromiseAdapter
         })
         return deferred.promise;
     }
+
+    export function convertMongoosePromise<T>(promise: mongoose.Promise<T>): Q.Promise<T> {
+        let deferred = Q.defer<T>();
+        promise.then((success)=>{
+            deferred.resolve(success);
+        }, (error)=>{
+            deferred.reject(error);
+        })
+        return deferred.promise;
+    }
 }
 
 export = PromiseAdapter;

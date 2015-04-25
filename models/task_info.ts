@@ -85,13 +85,16 @@ module TaskInfo
     {
         this._previousVersion = newValue; // ok to be null or undefined
     })
-    taskInfoSchema.virtual('taskGroup').get(function() {
-        if (this._taskGroup === undefined || this._taskGroup === null) {
+    taskInfoSchema.virtual('taskGroup').get(function()
+    {
+        if (this._taskGroup === undefined || this._taskGroup === null)
+        {
             return null;
         }
         return this._taskGroup;
     })
-    taskInfoSchema.virtual('taskGroup').set(function(newValue) {
+    taskInfoSchema.virtual('taskGroup').set(function(newValue)
+    {
         ReCalLib.Invariants.check(ReCalLib.Invariants.Predefined.isDefinedAndNotNull(newValue));
         this._taskGroup = newValue;
     })
@@ -100,12 +103,15 @@ module TaskInfo
 
     export var model = mongoose.model('TaskInfo', taskInfoSchema)
 
-    export function invariants(taskInfo)
+    export function invariants(taskInfo): Q.Promise<() => boolean>
     {
         let Invariants = ReCalLib.Invariants
-        return [
-            privacyInvariants(taskInfo.privacy),
-        ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue)
+        return Q.fcall(() =>
+        {
+            return [
+                privacyInvariants(taskInfo.privacy),
+            ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue)
+        })
     }
 }
 
