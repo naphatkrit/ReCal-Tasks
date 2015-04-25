@@ -20,7 +20,9 @@ var TaskGroup;
     TaskGroup.model = mongoose.model('TaskGroup', taskGroupSchema);
     function invariants(taskGroup) {
         var Invariants = ReCalLib.Invariants;
-        return [].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
+        return Q.fcall(function () {
+            return [].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
+        });
     }
     TaskGroup.invariants = invariants;
 })(TaskGroup || (TaskGroup = {}));

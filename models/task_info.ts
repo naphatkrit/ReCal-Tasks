@@ -103,12 +103,15 @@ module TaskInfo
 
     export var model = mongoose.model('TaskInfo', taskInfoSchema)
 
-    export function invariants(taskInfo)
+    export function invariants(taskInfo): Q.Promise<() => boolean>
     {
         let Invariants = ReCalLib.Invariants
-        return [
-            privacyInvariants(taskInfo.privacy),
-        ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue)
+        return Q.fcall(() =>
+        {
+            return [
+                privacyInvariants(taskInfo.privacy),
+            ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue)
+        })
     }
 }
 

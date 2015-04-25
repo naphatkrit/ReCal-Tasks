@@ -52,9 +52,11 @@ var Task;
     Task.model = mongoose.model("Task", taskSchema);
     function invariants(task) {
         var Invariants = ReCalLib.Invariants;
-        return [
-            stateInvariants(task.state)
-        ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
+        return Q.fcall(function () {
+            return [
+                stateInvariants(task.state)
+            ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
+        });
     }
     Task.invariants = invariants;
 })(Task || (Task = {}));

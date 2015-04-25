@@ -24,11 +24,13 @@ module TaskGroup
     taskGroupSchema.plugin(updatedStatusPlugin);
 
     export var model = mongoose.model('TaskGroup', taskGroupSchema);
-    export function invariants(taskGroup)
+    export function invariants(taskGroup): Q.Promise<()=>boolean>
     {
         let Invariants = ReCalLib.Invariants;
-        return [
-        ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
+        return Q.fcall(()=>{
+            return [
+            ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
+        })
     }
 }
 

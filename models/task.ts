@@ -62,12 +62,15 @@ module Task
 
     export var model = mongoose.model("Task", taskSchema);
 
-    export function invariants(task)
+    export function invariants(task): Q.Promise<() => boolean>
     {
         let Invariants = ReCalLib.Invariants;
-        return [
-            stateInvariants(task.state)
-        ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
+        return Q.fcall(() =>
+        {
+            return [
+                stateInvariants(task.state)
+            ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
+        })
     }
 }
 
