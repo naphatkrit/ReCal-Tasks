@@ -1,8 +1,8 @@
 import passport = require('passport');
 import url = require('url');
 
-import User = require("../models/user");
 import ModelLogic = require("../models/logic/index");
+import Models = require('../models/index');
 import ReCalLib = require("../lib/lib");
 
 passport.use(new (require('passport-cas').Strategy)({
@@ -10,9 +10,9 @@ passport.use(new (require('passport-cas').Strategy)({
     passReqToCallback: true,
 }, function(req, login, done)
     {
-        ModelLogic.findOrCreate(User.model, { _username: login }).then((user: any) =>
+        ModelLogic.findOrCreate(Models.User.model, { _username: login }).then((user: any) =>
         {
-            ReCalLib.Invariants.check(User.invariants(user));
+            // ReCalLib.Invariants.check(Models.User.invariants(user));
             done(null, {
                 username: user.username
             });

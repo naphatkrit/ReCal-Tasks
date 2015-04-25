@@ -30,7 +30,7 @@
     "files": [
         "./app.ts",
         "./authentication/index.ts",
-        "./lib/invariants.ts",
+        "./lib/Invariants.ts",
         "./lib/lib.ts",
         "./lib/promise_adapter.ts",
         "./models.old/index.ts",
