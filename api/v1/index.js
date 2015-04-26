@@ -1,6 +1,5 @@
 var express = require('express');
+var taskRouter = require('./task');
 var router = express.Router();
-router.get('/', function (req, res, next) {
-    res.send('respond with a resource');
-});
+router.use('/task', taskRouter);
 module.exports = router;

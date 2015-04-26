@@ -28,6 +28,9 @@
         "!./node_modules/**/*.ts"
     ],
     "files": [
+        "./api/index.ts",
+        "./api/v1/index.ts",
+        "./api/v1/task.ts",
         "./app.ts",
         "./authentication/index.ts",
         "./lib/Invariants.ts",
@@ -50,7 +53,6 @@
         "./models/task_info.ts",
         "./models/user.ts",
         "./routes/index.ts",
-        "./routes/users.ts",
         "./test.old/model__logic__task.ts",
         "./typings-manual/index.d.ts",
         "./typings-manual/sequelize/sequelize.d.ts",
