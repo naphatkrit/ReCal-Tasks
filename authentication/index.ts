@@ -12,10 +12,13 @@ passport.use(new (require('passport-cas').Strategy)({
     {
         ModelLogic.findOrCreate(Models.User.model, { _username: login }).then((user: any) =>
         {
-            // ReCalLib.Invariants.check(Models.User.invariants(user));
-            done(null, {
-                username: user.username
-            });
+            Models.User.invariants(user).then((invariants) =>
+            {
+                ReCalLib.Invariants.check(invariants)
+                done(null, {
+                    userId: user.id
+                });
+            })
         })
     }));
 

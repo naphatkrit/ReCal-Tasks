@@ -24,10 +24,17 @@ module TaskGroup
     taskGroupSchema.plugin(updatedStatusPlugin);
 
     export var model = mongoose.model('TaskGroup', taskGroupSchema);
-    export function invariants(taskGroup): Q.Promise<()=>boolean>
+
+    export interface Instance extends mongoose.Document
+    {
+        name: string
+    }
+
+    export function invariants(taskGroup): Q.Promise<() => boolean>
     {
         let Invariants = ReCalLib.Invariants;
-        return Q.fcall(()=>{
+        return Q.fcall(() =>
+        {
             return [
             ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
         })

@@ -17,25 +17,32 @@ module PromiseAdapter
     //         });
     //     return deferred.promise;
     // }
-    export function convertMongooseQuery<T>(query: mongoose.Query<T>): Q.Promise<T> {
+    export function convertMongooseQuery<T>(query: mongoose.Query<T>): Q.Promise<T>
+    {
         let deferred = Q.defer<T>();
-        query.exec((err, doc)=>{
-            if (err) {
+        query.exec((err, doc) =>
+        {
+            if (err)
+            {
                 deferred.reject(err);
-            } else {
+            } else
+            {
                 deferred.resolve(doc);
             }
         })
         return deferred.promise;
     }
 
-    export function convertMongoosePromise<T>(promise: mongoose.Promise<T>): Q.Promise<T> {
+    export function convertMongoosePromise<T>(promise: mongoose.Promise<T>): Q.Promise<T>
+    {
         let deferred = Q.defer<T>();
-        promise.then((success)=>{
+        promise.then((success) =>
+        {
             deferred.resolve(success);
-        }, (error)=>{
-            deferred.reject(error);
-        })
+        }, (error) =>
+            {
+                deferred.reject(error);
+            })
         return deferred.promise;
     }
 }

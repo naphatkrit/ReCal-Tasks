@@ -62,6 +62,12 @@ module Task
 
     export var model = mongoose.model("Task", taskSchema);
 
+    export interface Instance extends mongoose.Document
+    {
+        state: TaskState;
+        taskInfo: mongoose.Types.ObjectId | any;
+    }
+
     export function invariants(task): Q.Promise<() => boolean>
     {
         let Invariants = ReCalLib.Invariants;

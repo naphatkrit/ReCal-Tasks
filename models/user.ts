@@ -60,10 +60,17 @@ module User
 
     export var model = mongoose.model('User', userSchema);
 
-    export function invariants(userId): Q.Promise<() => boolean>
+    export interface Instance extends mongoose.Document
+    {
+        username: string
+        tasks: Array<mongoose.Types.ObjectId | any>
+        taskGroups: Array<mongoose.Types.ObjectId | any>
+    }
+
+    export function invariants(user: Instance): Q.Promise<() => boolean>
     {
         let Invariants = ReCalLib.Invariants;
-        return ReCalLib.PromiseAdapter.convertMongooseQuery(model.findById(userId).populate('_taskGroups _tasks')).then((user) =>
+        return ReCalLib.PromiseAdapter.convertMongooseQuery((<any>(user.populate('_taskGroups _tasks'))).execPopulate()).then((user) =>
         {
             return ReCalLib.PromiseAdapter.convertMongoosePromise(mongoose.model('TaskGroup').populate(user, { path: '_taskGroups._taskInfo' }))
         }).then((user: any) =>

@@ -103,6 +103,15 @@ module TaskInfo
 
     export var model = mongoose.model('TaskInfo', taskInfoSchema)
 
+    export interface Instance extends mongoose.Document
+    {
+        title: string
+        description: string
+        privacy: TaskPrivacy
+        previousVersion: mongoose.Types.ObjectId | Instance
+        taskGroup: Array<mongoose.Types.ObjectId | any>
+    }
+
     export function invariants(taskInfo): Q.Promise<() => boolean>
     {
         let Invariants = ReCalLib.Invariants

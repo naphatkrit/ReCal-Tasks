@@ -2,13 +2,17 @@ var passport = require('passport');
 var url = require('url');
 var ModelLogic = require("../models/logic/index");
 var Models = require('../models/index');
+var ReCalLib = require("../lib/lib");
 passport.use(new (require('passport-cas').Strategy)({
     ssoBaseURL: process.env.CAS_URL,
     passReqToCallback: true,
 }, function (req, login, done) {
     ModelLogic.findOrCreate(Models.User.model, { _username: login }).then(function (user) {
-        done(null, {
-            username: user.username
+        Models.User.invariants(user).then(function (invariants) {
+            ReCalLib.Invariants.check(invariants);
+            done(null, {
+                userId: user.id
+            });
         });
     });
 }));

@@ -44,9 +44,9 @@ var User;
     });
     userSchema.plugin(updatedStatusPlugin);
     User.model = mongoose.model('User', userSchema);
-    function invariants(userId) {
+    function invariants(user) {
         var Invariants = ReCalLib.Invariants;
-        return ReCalLib.PromiseAdapter.convertMongooseQuery(User.model.findById(userId).populate('_taskGroups _tasks')).then(function (user) {
+        return ReCalLib.PromiseAdapter.convertMongooseQuery((user.populate('_taskGroups _tasks')).execPopulate()).then(function (user) {
             return ReCalLib.PromiseAdapter.convertMongoosePromise(mongoose.model('TaskGroup').populate(user, { path: '_taskGroups._taskInfo' }));
         }).then(function (user) {
             return [
