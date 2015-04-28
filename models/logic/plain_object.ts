@@ -1,8 +1,12 @@
+import assert = require('assert');
+import mongoose = require('mongoose');
+import Q = require('q');
+
 import models = require('../index');
 import Task = require('../task');
 import TaskInfo = require('../task_info');
 import TaskGroup = require('../task_group');
-import Q = require('q');
+import PromiseAdapter = require('../../lib/promise_adapter');
 
 module PlainObject
 {
@@ -10,9 +14,33 @@ module PlainObject
     {
         return Q.fcall(() =>
         {
+            assert(taskGroup !== null && taskGroup !== undefined);
             return {
                 id: taskGroup.id,
                 name: taskGroup.name
+            }
+        })
+    }
+
+    export function convertTaskInfoInstance(taskInfo: TaskInfo.Instance): Q.Promise<Interfaces.TaskInfoPlainObject>
+    {
+
+        return Q.fcall(() =>
+        {
+            assert(taskInfo !== null && taskInfo !== undefined);
+        }).then(() =>
+        {
+            return PromiseAdapter.convertMongoosePromise((<TaskInfo.Instance>taskInfo.populate('_taskGroup')).execPopulate())
+        }).then((taskInfo) =>
+        {
+            return convertTaskGroupInstance(taskInfo.taskGroup);
+        }).then((taskGroupPlainObject) =>
+        {
+            return {
+                id: taskInfo.id,
+                title: taskInfo.title,
+                privacy: taskInfo.privacy,
+                taskGroup: taskGroupPlainObject
             }
         })
     }
@@ -40,7 +68,7 @@ module PlainObject
         {
             id?: string,
             title: string,
-            privacy: string,
+            privacy: TaskInfo.TaskPrivacy,
             taskGroup: TaskGroupPlainObject,
         }
         export interface TaskPlainObject

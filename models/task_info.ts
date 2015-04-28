@@ -109,7 +109,8 @@ module TaskInfo
         description: string
         privacy: TaskPrivacy
         previousVersion: mongoose.Types.ObjectId | Instance
-        taskGroup: Array<mongoose.Types.ObjectId | any>
+        taskGroup: mongoose.Types.ObjectId | any
+        execPopulate(): mongoose.Promise<Instance>
     }
 
     export function invariants(taskInfo): Q.Promise<Invariants.Invariant>
