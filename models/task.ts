@@ -66,6 +66,7 @@ module Task
     {
         state: TaskState;
         taskInfo: mongoose.Types.ObjectId | any;
+        execPopulate(): mongoose.Promise<Instance>
     }
 
     export function invariants(task): Q.Promise<Invariants.Invariant>

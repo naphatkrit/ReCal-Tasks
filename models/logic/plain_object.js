@@ -32,7 +32,17 @@ var PlainObject;
     PlainObject.convertTaskInfoInstance = convertTaskInfoInstance;
     function convertTaskInstance(task) {
         return Q.fcall(function () {
-            return null;
+            assert(task !== null && task !== undefined);
+        }).then(function () {
+            return PromiseAdapter.convertMongoosePromise(task.populate('_taskInfo').execPopulate());
+        }).then(function (task) {
+            return convertTaskInfoInstance(task.taskInfo);
+        }).then(function (taskInfoPlainObject) {
+            return {
+                id: task.id,
+                state: task.state,
+                taskInfo: taskInfoPlainObject
+            };
         });
     }
     PlainObject.convertTaskInstance = convertTaskInstance;

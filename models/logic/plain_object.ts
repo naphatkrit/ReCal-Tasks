@@ -47,10 +47,22 @@ module PlainObject
 
     export function convertTaskInstance(task: Task.Instance): Q.Promise<Interfaces.TaskPlainObject>
     {
-        // TODO
         return Q.fcall(() =>
         {
-            return null;
+            assert(task !== null && task !== undefined);
+        }).then(() =>
+        {
+            return PromiseAdapter.convertMongoosePromise((<Task.Instance>task.populate('_taskInfo')).execPopulate())
+        }).then((task) =>
+        {
+            return convertTaskInfoInstance(task.taskInfo);
+        }).then((taskInfoPlainObject) =>
+        {
+            return {
+                id: task.id,
+                state: task.state,
+                taskInfo: taskInfoPlainObject
+            }
         })
     }
 }
@@ -74,8 +86,7 @@ module PlainObject
         export interface TaskPlainObject
         {
             id?: string, // optional since new objects don't have id
-            userId: number,
-            status: string,
+            state: Task.TaskState,
             taskInfo: TaskInfoPlainObject,
         }
     }

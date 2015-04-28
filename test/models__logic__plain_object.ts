@@ -3,6 +3,7 @@ import assert = require('assert');
 import Q = require('q');
 
 import Models = require('../models/index');
+import Task = require('../models/task');
 import TaskGroup = require('../models/task_group');
 import TaskInfo = require('../models/task_info');
 import Invariants = require('../lib/invariants');
@@ -58,6 +59,34 @@ function createTaskInfo(taskGroup: TaskGroup.Instance): Q.Promise<TaskInfo.Insta
     return deferred.promise.then((doc) =>
     {
         return TaskInfo.invariants(doc).then((invariants) =>
+        {
+            Invariants.check(invariants);
+            return doc;
+        })
+    });
+}
+
+function createTask(taskInfo: TaskInfo.Instance): Q.Promise<Task.Instance>
+{
+    let deferred = Q.defer<Task.Instance>();
+    let task = <Task.Instance> new Task.model({
+        _state: Task.TaskState.Incomplete,
+        _taskInfo: null
+    });
+    task.taskInfo = taskInfo;
+    task.save<Task.Instance>((err, doc) =>
+    {
+        if (err)
+        {
+            deferred.reject(err);
+        } else
+        {
+            deferred.resolve(doc);
+        }
+    });
+    return deferred.promise.then((doc) =>
+    {
+        return Task.invariants(doc).then((invariants) =>
         {
             Invariants.check(invariants);
             return doc;
@@ -132,32 +161,40 @@ describe('Models Logic - Plain Object Unit Tests', () =>
                 })
             })
         });
-    });
+    }); // convertTaskGroupInstance()
 
     describe('convertTaskInfoInstance()', () =>
     {
         var taskGroupId = '';
         var taskInfoId = '';
-        beforeEach((done)=>{
-            createTaskGroup().then((taskGroup)=>{
+        beforeEach((done) =>
+        {
+            createTaskGroup().then((taskGroup) =>
+            {
                 taskGroupId = taskGroup.id;
                 return createTaskInfo(taskGroup);
-            }).then((taskInfo)=>{
+            }).then((taskInfo) =>
+            {
                 taskInfoId = taskInfo.id;
                 done();
-            }).fail((err)=>{
+            }).fail((err) =>
+            {
                 done(err);
             })
         })
-        afterEach((done)=>{
+        afterEach((done) =>
+        {
             Q.all([
-                PromiseAdapter.convertMongooseQuery(TaskInfo.model.remove({_id: taskGroupId})),
-                PromiseAdapter.convertMongooseQuery(TaskGroup.model.remove({_id: taskInfoId}))
-            ]).then(()=>{
-                done();
-            }, (err)=>{
-                done(err);
-            })
+                PromiseAdapter.convertMongooseQuery(TaskInfo.model.remove({ _id: taskInfoId })),
+                PromiseAdapter.convertMongooseQuery(TaskGroup.model.remove({ _id: taskGroupId }))
+            ]).then(
+                () =>
+                {
+                    done();
+                }, (err) =>
+                {
+                    done(err);
+                })
         })
         it('Should fail when given null as an argument', (done) =>
         {
@@ -170,12 +207,15 @@ describe('Models Logic - Plain Object Unit Tests', () =>
                     done();
                 })
         })
-        it('Should successfully create a plain object', ()=>{
+        it('Should successfully create a plain object', () =>
+        {
             return Q.all([
                 PromiseAdapter.convertMongooseQuery(TaskGroup.model.findById(taskGroupId)),
                 PromiseAdapter.convertMongooseQuery(TaskInfo.model.findById(taskInfoId))
-            ]).spread((taskGroup, taskInfo)=>{
-                return PlainObject.convertTaskInfoInstance(taskInfo).then((plainObject)=>{
+            ]).spread((taskGroup, taskInfo) =>
+            {
+                return PlainObject.convertTaskInfoInstance(taskInfo).then((plainObject) =>
+                {
                     assert(plainObject.id === taskInfo.id)
                     assert(plainObject.title === taskInfo.title)
                     assert(plainObject.privacy === taskInfo.privacy)
@@ -184,16 +224,21 @@ describe('Models Logic - Plain Object Unit Tests', () =>
                 })
             })
         })
-        it('Should successfully create a plain object even if taskGroup property has already been populated', ()=>{
+        it('Should successfully create a plain object even if taskGroup property has already been populated', () =>
+        {
             return Q.all([
                 PromiseAdapter.convertMongooseQuery(TaskGroup.model.findById(taskGroupId)),
                 PromiseAdapter.convertMongooseQuery(TaskInfo.model.findById(taskInfoId))
-            ]).spread((taskGroup, taskInfo)=>{
-                return taskInfo.populate('_taskGroup', (err, taskInfo)=>{
-                    if (err) {
+            ]).spread((taskGroup, taskInfo) =>
+            {
+                return taskInfo.populate('_taskGroup', (err, taskInfo) =>
+                {
+                    if (err)
+                    {
                         throw err;
                     }
-                    return PlainObject.convertTaskInfoInstance(taskInfo).then((plainObject)=>{
+                    return PlainObject.convertTaskInfoInstance(taskInfo).then((plainObject) =>
+                    {
                         assert(plainObject.id === taskInfo.id)
                         assert(plainObject.title === taskInfo.title)
                         assert(plainObject.privacy === taskInfo.privacy)
@@ -203,5 +248,103 @@ describe('Models Logic - Plain Object Unit Tests', () =>
                 })
             })
         })
-    });
+    }); // convertTaskInfoInstance()
+    describe('convertTaskInstance()', () =>
+    {
+        var taskGroupId = '';
+        var taskInfoId = '';
+        var taskId = '';
+        beforeEach((done) =>
+        {
+            createTaskGroup().then((taskGroup) =>
+            {
+                taskGroupId = taskGroup.id;
+                return createTaskInfo(taskGroup);
+            }).then((taskInfo) =>
+            {
+                taskInfoId = taskInfo.id;
+                return createTask(taskInfo);
+            }).then((task) =>
+            {
+                taskId = task.id;
+                done();
+            }).fail((err) =>
+            {
+                done(err);
+            })
+        })
+        afterEach((done) =>
+        {
+            Q.all([
+                PromiseAdapter.convertMongooseQuery(TaskGroup.model.findByIdAndRemove(taskGroupId)),
+                PromiseAdapter.convertMongooseQuery(TaskInfo.model.findByIdAndRemove(taskInfoId)),
+                PromiseAdapter.convertMongooseQuery(Task.model.findByIdAndRemove(taskId))
+            ]).then(
+                () =>
+                {
+                    done();
+                }, (err) =>
+                {
+                    done(err);
+                })
+        })
+        it('Should fail when given null as an argument', (done) =>
+        {
+            PlainObject.convertTaskInstance(null).then(
+                () =>
+                {
+                    done(new Error('Did not fail'));
+                }, (err) =>
+                {
+                    done();
+                })
+        })
+        it('Should successfully create a plain object', () =>
+        {
+            return Q.all([
+                PromiseAdapter.convertMongooseQuery(TaskGroup.model.findById(taskGroupId)),
+                PromiseAdapter.convertMongooseQuery(TaskInfo.model.findById(taskInfoId)),
+                PromiseAdapter.convertMongooseQuery(Task.model.findById(taskId))
+            ]).spread((taskGroup, taskInfo, task) =>
+            {
+                return PlainObject.convertTaskInstance(task).then((plainObject) =>
+                {
+                    assert(plainObject.id === task.id)
+                    assert(plainObject.state === task.state)
+                    assert(plainObject.taskInfo.id === taskInfo.id)
+                    assert(plainObject.taskInfo.title === taskInfo.title)
+                    assert(plainObject.taskInfo.privacy === taskInfo.privacy)
+                    assert(plainObject.taskInfo.taskGroup.id === taskGroup.id)
+                    assert(plainObject.taskInfo.taskGroup.name === taskGroup.name)
+                })
+            })
+        })
+        it('Should successfully create a plain object even if taskInfo property has already been populated', () =>
+        {
+            return Q.all([
+                PromiseAdapter.convertMongooseQuery(TaskGroup.model.findById(taskGroupId)),
+                PromiseAdapter.convertMongooseQuery(TaskInfo.model.findById(taskInfoId)),
+                PromiseAdapter.convertMongooseQuery(Task.model.findById(taskId))
+            ]).spread((taskGroup, taskInfo, task) =>
+            {
+                return task.populate('_taskInfo', (err, task) =>
+                {
+                    if (err)
+                    {
+                        throw err;
+                    }
+                    return PlainObject.convertTaskInstance(task).then((plainObject) =>
+                    {
+                        assert(plainObject.id === task.id)
+                        assert(plainObject.state === task.state)
+                        assert(plainObject.taskInfo.id === taskInfo.id)
+                        assert(plainObject.taskInfo.title === taskInfo.title)
+                        assert(plainObject.taskInfo.privacy === taskInfo.privacy)
+                        assert(plainObject.taskInfo.taskGroup.id === taskGroup.id)
+                        assert(plainObject.taskInfo.taskGroup.name === taskGroup.name)
+                    })
+                })
+            })
+        })
+    }); // convertTaskInstance()
 })
