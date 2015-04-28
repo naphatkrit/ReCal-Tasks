@@ -1,11 +1,11 @@
 import Q = require('q');
 import mongoose = require('mongoose');
 
-import ReCalLib = require("../../lib/lib");
+import PromiseAdapter = require("../../lib/promise_adapter");
 
 export function findOrCreate(model, criteria): Q.Promise<mongoose.Document>
 {
-    return ReCalLib.PromiseAdapter.convertMongooseQuery<mongoose.Document>(model.findOne(criteria)).then(
+    return PromiseAdapter.convertMongooseQuery<mongoose.Document>(model.findOne(criteria)).then(
         (doc) =>
         {
             if (!doc)
@@ -20,6 +20,5 @@ export function findOrCreate(model, criteria): Q.Promise<mongoose.Document>
             let doc = new model(criteria);
             doc.save();
             return doc;
-        }
-        )
+        })
 }

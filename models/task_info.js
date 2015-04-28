@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
+var Q = require('q');
 var updatedStatusPlugin = require("./plugins/updated_status");
-var ReCalLib = require("../lib/lib");
+var Invariants = require("../lib/invariants");
 var TaskInfo;
 (function (TaskInfo) {
     (function (TaskPrivacy) {
@@ -10,7 +11,6 @@ var TaskInfo;
     var TaskPrivacy = TaskInfo.TaskPrivacy;
     ;
     function privacyInvariants(privacy) {
-        var Invariants = ReCalLib.Invariants;
         return [
             Invariants.Predefined.isDefinedAndNotNull(privacy),
             function () {
@@ -39,7 +39,7 @@ var TaskInfo;
         return this._title;
     });
     taskInfoSchema.virtual('title').set(function (newValue) {
-        ReCalLib.Invariants.check(ReCalLib.Invariants.Predefined.isDefinedAndNotNull(newValue));
+        Invariants.check(Invariants.Predefined.isDefinedAndNotNull(newValue));
         this._title = newValue;
     });
     taskInfoSchema.virtual('description').get(function () {
@@ -49,18 +49,18 @@ var TaskInfo;
         return this._description;
     });
     taskInfoSchema.virtual('description').set(function (newValue) {
-        ReCalLib.Invariants.check(ReCalLib.Invariants.Predefined.isDefinedAndNotNull(newValue));
+        Invariants.check(Invariants.Predefined.isDefinedAndNotNull(newValue));
         this._description = newValue;
     });
     taskInfoSchema.virtual('privacy').get(function () {
         if (this._privacy === null || this._privacy === undefined) {
             return TaskPrivacy.Private;
         }
-        ReCalLib.Invariants.check(privacyInvariants(this._privacy));
+        Invariants.check(privacyInvariants(this._privacy));
         return this._privacy;
     });
     taskInfoSchema.virtual('privacy').set(function (newValue) {
-        ReCalLib.Invariants.check(privacyInvariants(newValue));
+        Invariants.check(privacyInvariants(newValue));
         this._privacy = newValue;
     });
     taskInfoSchema.virtual('previousVersion').get(function () {
@@ -79,13 +79,12 @@ var TaskInfo;
         return this._taskGroup;
     });
     taskInfoSchema.virtual('taskGroup').set(function (newValue) {
-        ReCalLib.Invariants.check(ReCalLib.Invariants.Predefined.isDefinedAndNotNull(newValue));
+        Invariants.check(Invariants.Predefined.isDefinedAndNotNull(newValue));
         this._taskGroup = newValue;
     });
     taskInfoSchema.plugin(updatedStatusPlugin);
     TaskInfo.model = mongoose.model('TaskInfo', taskInfoSchema);
     function invariants(taskInfo) {
-        var Invariants = ReCalLib.Invariants;
         return Q.fcall(function () {
             return [
                 privacyInvariants(taskInfo.privacy),

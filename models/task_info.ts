@@ -1,14 +1,14 @@
 import mongoose = require('mongoose');
+import Q = require('q');
 
 import updatedStatusPlugin = require("./plugins/updated_status");
-import ReCalLib = require("../lib/lib");
+import Invariants = require("../lib/invariants");
 
 module TaskInfo
 {
     export enum TaskPrivacy { Private, Public };
     function privacyInvariants(privacy: TaskPrivacy)
     {
-        let Invariants = ReCalLib.Invariants;
         return [
             Invariants.Predefined.isDefinedAndNotNull(privacy),
             () =>
@@ -43,7 +43,7 @@ module TaskInfo
     })
     taskInfoSchema.virtual('title').set(function(newValue: string)
     {
-        ReCalLib.Invariants.check(ReCalLib.Invariants.Predefined.isDefinedAndNotNull(newValue))
+        Invariants.check(Invariants.Predefined.isDefinedAndNotNull(newValue))
         this._title = newValue;
     })
     taskInfoSchema.virtual('description').get(function(): string
@@ -56,7 +56,7 @@ module TaskInfo
     })
     taskInfoSchema.virtual('description').set(function(newValue: string)
     {
-        ReCalLib.Invariants.check(ReCalLib.Invariants.Predefined.isDefinedAndNotNull(newValue));
+        Invariants.check(Invariants.Predefined.isDefinedAndNotNull(newValue));
         this._description = newValue;
     })
     taskInfoSchema.virtual('privacy').get(function(): TaskPrivacy
@@ -65,12 +65,12 @@ module TaskInfo
         {
             return TaskPrivacy.Private;
         }
-        ReCalLib.Invariants.check(privacyInvariants(this._privacy));
+        Invariants.check(privacyInvariants(this._privacy));
         return this._privacy;
     })
     taskInfoSchema.virtual('privacy').set(function(newValue: TaskPrivacy)
     {
-        ReCalLib.Invariants.check(privacyInvariants(newValue));
+        Invariants.check(privacyInvariants(newValue));
         this._privacy = newValue;
     })
     taskInfoSchema.virtual('previousVersion').get(function()
@@ -95,7 +95,7 @@ module TaskInfo
     })
     taskInfoSchema.virtual('taskGroup').set(function(newValue)
     {
-        ReCalLib.Invariants.check(ReCalLib.Invariants.Predefined.isDefinedAndNotNull(newValue));
+        Invariants.check(Invariants.Predefined.isDefinedAndNotNull(newValue));
         this._taskGroup = newValue;
     })
 
@@ -112,9 +112,8 @@ module TaskInfo
         taskGroup: Array<mongoose.Types.ObjectId | any>
     }
 
-    export function invariants(taskInfo): Q.Promise<() => boolean>
+    export function invariants(taskInfo): Q.Promise<Invariants.Invariant>
     {
-        let Invariants = ReCalLib.Invariants
         return Q.fcall(() =>
         {
             return [

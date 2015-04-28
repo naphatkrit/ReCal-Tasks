@@ -1,24 +1,31 @@
 import passport = require('passport');
 import url = require('url');
 
-import ModelLogic = require("../models/logic/index");
-import Models = require('../models/index');
-import ReCalLib = require("../lib/lib");
+import ModelQuery = require("../models/logic/query");
+import User = require('../models/user');
+import Invariants = require("../lib/invariants");
 
 passport.use(new (require('passport-cas').Strategy)({
     ssoBaseURL: process.env.CAS_URL,
     passReqToCallback: true,
 }, function(req, login, done)
     {
-        ModelLogic.findOrCreate(Models.User.model, { _username: login }).then((user: any) =>
+        ModelQuery.findOrCreate(User.model, { _username: login }).then((user: any) =>
         {
-            Models.User.invariants(user).then((invariants) =>
-            {
-                ReCalLib.Invariants.check(invariants)
+            // User.invariants(user).then((invariants) =>
+            // {
+            //     console.log("Created Invariants");
+            //     Invariants.check(invariants)
                 done(null, {
                     userId: user.id
                 });
-            })
+            // }, (error)=>{
+            //     console.log("Error creating invariants");
+            //     throw error;
+            // })
+        }, (error) => {
+            console.log("Error creating a user")
+            throw error;
         })
     }));
 

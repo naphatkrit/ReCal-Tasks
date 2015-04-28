@@ -1,7 +1,9 @@
 import mongoose = require("mongoose");
+import Q = require('q');
 
-import ReCalLib = require("../lib/lib");
 import updatedStatusPlugin = require("./plugins/updated_status");
+import Invariants = require('../lib/invariants');
+
 module TaskGroup
 {
     let taskGroupSchema = new mongoose.Schema({
@@ -17,7 +19,7 @@ module TaskGroup
     })
     taskGroupSchema.virtual('name').set(function(newValue: string)
     {
-        ReCalLib.Invariants.check(ReCalLib.Invariants.Predefined.isDefinedAndNotNull(newValue));
+        Invariants.check(Invariants.Predefined.isDefinedAndNotNull(newValue));
         this._name = name;
     })
 
@@ -30,9 +32,8 @@ module TaskGroup
         name: string
     }
 
-    export function invariants(taskGroup): Q.Promise<() => boolean>
+    export function invariants(taskGroup): Q.Promise<Invariants.Invariant>
     {
-        let Invariants = ReCalLib.Invariants;
         return Q.fcall(() =>
         {
             return [
