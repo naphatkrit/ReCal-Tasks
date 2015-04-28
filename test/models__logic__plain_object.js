@@ -66,6 +66,10 @@ function createTask(taskInfo) {
 }
 describe('Models Logic - Plain Object Unit Tests', function () {
     before(function (done) {
+        if (Models.connection.readyState === 1) {
+            done();
+            return;
+        }
         Models.connection.once('error', function (error) {
             done(error);
         });
@@ -82,19 +86,9 @@ describe('Models Logic - Plain Object Unit Tests', function () {
             }, function (err) {
                 done(err);
             });
-            var taskGroup = new TaskGroup.model({
-                _name: "Dummy Task Group"
-            });
         });
         afterEach(function (done) {
-            TaskGroup.model.remove({ _id: taskGroupId }, function (err) {
-                if (err) {
-                    done(err);
-                }
-                else {
-                    done();
-                }
-            });
+            TaskGroup.model.findByIdAndRemove(taskGroupId, done);
         });
         it('Should fail when given null as an argument', function (done) {
             PlainObject.convertTaskGroupInstance(null).then(function () {
@@ -152,6 +146,7 @@ describe('Models Logic - Plain Object Unit Tests', function () {
                 return PlainObject.convertTaskInfoInstance(taskInfo).then(function (plainObject) {
                     assert(plainObject.id === taskInfo.id);
                     assert(plainObject.title === taskInfo.title);
+                    assert(plainObject.description === taskInfo.description);
                     assert(plainObject.privacy === taskInfo.privacy);
                     assert(plainObject.taskGroup.id === taskGroup.id);
                     assert(plainObject.taskGroup.name === taskGroup.name);
@@ -170,6 +165,7 @@ describe('Models Logic - Plain Object Unit Tests', function () {
                     return PlainObject.convertTaskInfoInstance(taskInfo).then(function (plainObject) {
                         assert(plainObject.id === taskInfo.id);
                         assert(plainObject.title === taskInfo.title);
+                        assert(plainObject.description === taskInfo.description);
                         assert(plainObject.privacy === taskInfo.privacy);
                         assert(plainObject.taskGroup.id === taskGroup.id);
                         assert(plainObject.taskGroup.name === taskGroup.name);
@@ -225,6 +221,7 @@ describe('Models Logic - Plain Object Unit Tests', function () {
                     assert(plainObject.state === task.state);
                     assert(plainObject.taskInfo.id === taskInfo.id);
                     assert(plainObject.taskInfo.title === taskInfo.title);
+                    assert(plainObject.taskInfo.description === taskInfo.description);
                     assert(plainObject.taskInfo.privacy === taskInfo.privacy);
                     assert(plainObject.taskInfo.taskGroup.id === taskGroup.id);
                     assert(plainObject.taskInfo.taskGroup.name === taskGroup.name);
@@ -246,6 +243,7 @@ describe('Models Logic - Plain Object Unit Tests', function () {
                         assert(plainObject.state === task.state);
                         assert(plainObject.taskInfo.id === taskInfo.id);
                         assert(plainObject.taskInfo.title === taskInfo.title);
+                        assert(plainObject.taskInfo.description === taskInfo.description);
                         assert(plainObject.taskInfo.privacy === taskInfo.privacy);
                         assert(plainObject.taskInfo.taskGroup.id === taskGroup.id);
                         assert(plainObject.taskInfo.taskGroup.name === taskGroup.name);

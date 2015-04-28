@@ -39,6 +39,7 @@ module PlainObject
             return {
                 id: taskInfo.id,
                 title: taskInfo.title,
+                description: taskInfo.description,
                 privacy: taskInfo.privacy,
                 taskGroup: taskGroupPlainObject
             }
@@ -80,6 +81,7 @@ module PlainObject
         {
             id?: string,
             title: string,
+            description: string,
             privacy: TaskInfo.TaskPrivacy,
             taskGroup: TaskGroupPlainObject,
         }

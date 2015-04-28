@@ -45,6 +45,22 @@ module PromiseAdapter
             })
         return deferred.promise;
     }
+
+    export function convertMongooseDocumentSave<T extends mongoose.Document>(document: T): Q.Promise<T>
+    {
+        let deferred = Q.defer<T>();
+        document.save((err) =>
+        {
+            if (err)
+            {
+                deferred.reject(err);
+            } else
+            {
+                deferred.resolve(document);
+            }
+        })
+        return deferred.promise;
+    }
 }
 
 export = PromiseAdapter;

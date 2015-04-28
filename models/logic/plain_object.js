@@ -24,6 +24,7 @@ var PlainObject;
             return {
                 id: taskInfo.id,
                 title: taskInfo.title,
+                description: taskInfo.description,
                 privacy: taskInfo.privacy,
                 taskGroup: taskGroupPlainObject
             };

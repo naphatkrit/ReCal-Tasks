@@ -6,7 +6,6 @@ import Models = require('../models/index');
 import Task = require('../models/task');
 import TaskGroup = require('../models/task_group');
 import TaskInfo = require('../models/task_info');
-import Invariants = require('../lib/invariants');
 import PromiseAdapter = require('../lib/promise_adapter');
 import PlainObject = require('../models/logic/plain_object');
 
@@ -86,6 +85,11 @@ describe('Models Logic - Plain Object Unit Tests', () =>
 {
     before((done) =>
     {
+        if (Models.connection.readyState === 1)
+        {
+            done();
+            return;
+        }
         Models.connection.once('error', (error) =>
         {
             done(error);
@@ -95,7 +99,6 @@ describe('Models Logic - Plain Object Unit Tests', () =>
             done();
         })
     })
-
     describe('convertTaskGroupInstance()', () =>
     {
         var taskGroupId = '';
@@ -109,22 +112,10 @@ describe('Models Logic - Plain Object Unit Tests', () =>
                 {
                     done(err);
                 })
-            let taskGroup = new TaskGroup.model({
-                _name: "Dummy Task Group"
-            });
         })
         afterEach((done) =>
         {
-            TaskGroup.model.remove({ _id: taskGroupId }, (err) =>
-            {
-                if (err)
-                {
-                    done(err);
-                } else
-                {
-                    done();
-                }
-            })
+            TaskGroup.model.findByIdAndRemove(taskGroupId, done)
         })
         it('Should fail when given null as an argument', (done) =>
         {
@@ -206,6 +197,7 @@ describe('Models Logic - Plain Object Unit Tests', () =>
                 {
                     assert(plainObject.id === taskInfo.id)
                     assert(plainObject.title === taskInfo.title)
+                    assert(plainObject.description === taskInfo.description)
                     assert(plainObject.privacy === taskInfo.privacy)
                     assert(plainObject.taskGroup.id === taskGroup.id)
                     assert(plainObject.taskGroup.name === taskGroup.name)
@@ -229,6 +221,7 @@ describe('Models Logic - Plain Object Unit Tests', () =>
                     {
                         assert(plainObject.id === taskInfo.id)
                         assert(plainObject.title === taskInfo.title)
+                        assert(plainObject.description === taskInfo.description)
                         assert(plainObject.privacy === taskInfo.privacy)
                         assert(plainObject.taskGroup.id === taskGroup.id)
                         assert(plainObject.taskGroup.name === taskGroup.name)
@@ -301,6 +294,7 @@ describe('Models Logic - Plain Object Unit Tests', () =>
                     assert(plainObject.state === task.state)
                     assert(plainObject.taskInfo.id === taskInfo.id)
                     assert(plainObject.taskInfo.title === taskInfo.title)
+                    assert(plainObject.taskInfo.description === taskInfo.description)
                     assert(plainObject.taskInfo.privacy === taskInfo.privacy)
                     assert(plainObject.taskInfo.taskGroup.id === taskGroup.id)
                     assert(plainObject.taskInfo.taskGroup.name === taskGroup.name)
@@ -327,6 +321,7 @@ describe('Models Logic - Plain Object Unit Tests', () =>
                         assert(plainObject.state === task.state)
                         assert(plainObject.taskInfo.id === taskInfo.id)
                         assert(plainObject.taskInfo.title === taskInfo.title)
+                        assert(plainObject.taskInfo.description === taskInfo.description)
                         assert(plainObject.taskInfo.privacy === taskInfo.privacy)
                         assert(plainObject.taskInfo.taskGroup.id === taskGroup.id)
                         assert(plainObject.taskInfo.taskGroup.name === taskGroup.name)

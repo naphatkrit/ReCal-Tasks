@@ -47,6 +47,7 @@
         "./models/user.ts",
         "./routes/index.ts",
         "./test/models__logic__plain_object.ts",
+        "./test/models__logic__task_logic.ts",
         "./typings-manual/index.d.ts",
         "./typings-manual/sequelize/sequelize.d.ts",
         "./typings/body-parser/body-parser.d.ts",
