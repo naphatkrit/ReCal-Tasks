@@ -1,7 +1,8 @@
 import mongoose = require("mongoose");
+import Q = require('q');
 
 import updatedStatusPlugin = require("./plugins/updated_status");
-import ReCalLib = require("../lib/lib");
+import Invariants = require("../lib/invariants");
 
 module Task
 {
@@ -17,9 +18,8 @@ module Task
             autoIndex: process.env.NODE_ENV === 'development',
         });
 
-    function stateInvariants(state: TaskState)
+    function stateInvariants(state: TaskState): Invariants.Invariant
     {
-        let Invariants = ReCalLib.Invariants;
         return [
             Invariants.Predefined.isDefinedAndNotNull(state),
             () =>
@@ -36,12 +36,12 @@ module Task
         {
             return TaskState.Incomplete;
         }
-        ReCalLib.Invariants.check(stateInvariants(this._state));
+        Invariants.check(stateInvariants(this._state));
         return this._state;
     })
     taskSchema.virtual('state').set(function(newState: TaskState)
     {
-        ReCalLib.Invariants.check(stateInvariants(newState));
+        Invariants.check(stateInvariants(newState));
         this._state = newState;
     })
 
@@ -62,9 +62,14 @@ module Task
 
     export var model = mongoose.model("Task", taskSchema);
 
-    export function invariants(task): Q.Promise<() => boolean>
+    export interface Instance extends mongoose.Document
     {
-        let Invariants = ReCalLib.Invariants;
+        state: TaskState;
+        taskInfo: mongoose.Types.ObjectId | any;
+    }
+
+    export function invariants(task): Q.Promise<Invariants.Invariant>
+    {
         return Q.fcall(() =>
         {
             return [

@@ -1,6 +1,8 @@
 import mongoose = require('mongoose');
+import Q = require('q');
 
-import ReCalLib = require("../lib/lib");
+import Invariants = require("../lib/invariants");
+import PromiseAdapter = require("../lib/promise_adapter");
 import updatedStatusPlugin = require("./plugins/updated_status");
 
 // NOTE: wrapping into a module prevents the issue of defining a model twice when you include this in two different places
@@ -39,7 +41,7 @@ module User
     })
     userSchema.virtual('tasks').set(function(newValue)
     {
-        ReCalLib.Invariants.check(ReCalLib.Invariants.Predefined.isDefinedAndNotNull(newValue));
+        Invariants.check(Invariants.Predefined.isDefinedAndNotNull(newValue));
         this._tasks = newValue;
     })
     userSchema.virtual('taskGroups').get(function()
@@ -52,7 +54,7 @@ module User
     })
     userSchema.virtual('taskGroups').set(function(newValue)
     {
-        ReCalLib.Invariants.check(ReCalLib.Invariants.Predefined.isDefinedAndNotNull(newValue));
+        Invariants.check(Invariants.Predefined.isDefinedAndNotNull(newValue));
         this._taskGroups = newValue;
     })
 
@@ -60,12 +62,18 @@ module User
 
     export var model = mongoose.model('User', userSchema);
 
-    export function invariants(userId): Q.Promise<() => boolean>
+    export interface Instance extends mongoose.Document
     {
-        let Invariants = ReCalLib.Invariants;
-        return ReCalLib.PromiseAdapter.convertMongooseQuery(model.findById(userId).populate('_taskGroups _tasks')).then((user) =>
+        username: string
+        tasks: Array<mongoose.Types.ObjectId | any>
+        taskGroups: Array<mongoose.Types.ObjectId | any>
+    }
+
+    export function invariants(user: Instance): Q.Promise<Invariants.Invariant>
+    {
+        return PromiseAdapter.convertMongooseQuery((<any>(user.populate('_taskGroups _tasks'))).execPopulate()).then((user) =>
         {
-            return ReCalLib.PromiseAdapter.convertMongoosePromise(mongoose.model('TaskGroup').populate(user, { path: '_taskGroups._taskInfo' }))
+            return PromiseAdapter.convertMongoosePromise(mongoose.model('TaskGroup').populate(user, { path: '_taskGroups._taskInfo' }))
         }).then((user: any) =>
         {
             return [

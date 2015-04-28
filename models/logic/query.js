@@ -1,6 +1,6 @@
-var ReCalLib = require("../../lib/lib");
+var PromiseAdapter = require("../../lib/promise_adapter");
 function findOrCreate(model, criteria) {
-    return ReCalLib.PromiseAdapter.convertMongooseQuery(model.findOne(criteria)).then(function (doc) {
+    return PromiseAdapter.convertMongooseQuery(model.findOne(criteria)).then(function (doc) {
         if (!doc) {
             doc = new model(criteria);
         }

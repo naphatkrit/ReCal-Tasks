@@ -1,6 +1,7 @@
 var mongoose = require("mongoose");
+var Q = require('q');
 var updatedStatusPlugin = require("./plugins/updated_status");
-var ReCalLib = require("../lib/lib");
+var Invariants = require("../lib/invariants");
 var Task;
 (function (Task) {
     (function (TaskState) {
@@ -19,7 +20,6 @@ var Task;
         autoIndex: process.env.NODE_ENV === 'development',
     });
     function stateInvariants(state) {
-        var Invariants = ReCalLib.Invariants;
         return [
             Invariants.Predefined.isDefinedAndNotNull(state),
             function () {
@@ -32,11 +32,11 @@ var Task;
         if (this._state === null || this._state === undefined) {
             return TaskState.Incomplete;
         }
-        ReCalLib.Invariants.check(stateInvariants(this._state));
+        Invariants.check(stateInvariants(this._state));
         return this._state;
     });
     taskSchema.virtual('state').set(function (newState) {
-        ReCalLib.Invariants.check(stateInvariants(newState));
+        Invariants.check(stateInvariants(newState));
         this._state = newState;
     });
     taskSchema.virtual('taskInfo').get(function () {
@@ -51,7 +51,6 @@ var Task;
     taskSchema.plugin(updatedStatusPlugin);
     Task.model = mongoose.model("Task", taskSchema);
     function invariants(task) {
-        var Invariants = ReCalLib.Invariants;
         return Q.fcall(function () {
             return [
                 stateInvariants(task.state)

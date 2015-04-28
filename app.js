@@ -6,7 +6,7 @@ var bodyParser = require('body-parser');
 var session = require('express-session');
 var authentication = require('./authentication/index');
 var routes = require('./routes/index');
-var users = require('./routes/users');
+var api = require('./api/index');
 var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -24,8 +24,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/login', authentication.loginPage());
 app.use('/logout', authentication.logoutPage());
+app.use('/api', authentication.ensureAuthenticated, api);
 app.use('/', authentication.ensureAuthenticated, routes);
-app.use('/users', authentication.ensureAuthenticated, users);
 app.use(function (req, res, next) {
     var err = new Error('Not Found');
     err.status = 404;

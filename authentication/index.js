@@ -1,15 +1,18 @@
 var passport = require('passport');
 var url = require('url');
-var ModelLogic = require("../models/logic/index");
-var Models = require('../models/index');
+var ModelQuery = require("../models/logic/query");
+var User = require('../models/user');
 passport.use(new (require('passport-cas').Strategy)({
     ssoBaseURL: process.env.CAS_URL,
     passReqToCallback: true,
 }, function (req, login, done) {
-    ModelLogic.findOrCreate(Models.User.model, { _username: login }).then(function (user) {
+    ModelQuery.findOrCreate(User.model, { _username: login }).then(function (user) {
         done(null, {
-            username: user.username
+            userId: user.id
         });
+    }, function (error) {
+        console.log("Error creating a user");
+        throw error;
     });
 }));
 passport.serializeUser(function (user, done) {
