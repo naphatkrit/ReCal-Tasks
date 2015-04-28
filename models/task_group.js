@@ -5,7 +5,10 @@ var Invariants = require('../lib/invariants');
 var TaskGroup;
 (function (TaskGroup) {
     var taskGroupSchema = new mongoose.Schema({
-        _name: String
+        _name: {
+            type: String,
+            required: true
+        }
     });
     taskGroupSchema.virtual('name').get(function () {
         if (this._name === null || this._name === undefined) {

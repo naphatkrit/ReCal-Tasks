@@ -4,32 +4,27 @@ var updatedStatusPlugin = require("./plugins/updated_status");
 var Invariants = require("../lib/invariants");
 var TaskInfo;
 (function (TaskInfo) {
-    (function (TaskPrivacy) {
-        TaskPrivacy[TaskPrivacy["Private"] = 0] = "Private";
-        TaskPrivacy[TaskPrivacy["Public"] = 1] = "Public";
-    })(TaskInfo.TaskPrivacy || (TaskInfo.TaskPrivacy = {}));
-    var TaskPrivacy = TaskInfo.TaskPrivacy;
-    ;
-    function privacyInvariants(privacy) {
-        return [
-            Invariants.Predefined.isDefinedAndNotNull(privacy),
-            function () {
-                var name = TaskPrivacy[privacy];
-                return name !== null || name !== undefined;
-            }
-        ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
-    }
     var taskInfoSchema = new mongoose.Schema({
-        _title: String,
-        _description: String,
-        _privacy: Number,
+        _title: {
+            type: String,
+            required: true
+        },
+        _description: {
+            type: String,
+            required: true
+        },
+        _privacy: {
+            type: Number,
+            required: true
+        },
         _previousVersion: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'TaskInfo'
+            ref: 'TaskInfo',
         },
         _taskGroup: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'TaskGroup'
+            ref: 'TaskGroup',
+            required: true
         }
     });
     taskInfoSchema.virtual('title').get(function () {
@@ -39,7 +34,6 @@ var TaskInfo;
         return this._title;
     });
     taskInfoSchema.virtual('title').set(function (newValue) {
-        Invariants.check(Invariants.Predefined.isDefinedAndNotNull(newValue));
         this._title = newValue;
     });
     taskInfoSchema.virtual('description').get(function () {
@@ -49,18 +43,15 @@ var TaskInfo;
         return this._description;
     });
     taskInfoSchema.virtual('description').set(function (newValue) {
-        Invariants.check(Invariants.Predefined.isDefinedAndNotNull(newValue));
         this._description = newValue;
     });
     taskInfoSchema.virtual('privacy').get(function () {
         if (this._privacy === null || this._privacy === undefined) {
             return TaskPrivacy.Private;
         }
-        Invariants.check(privacyInvariants(this._privacy));
         return this._privacy;
     });
     taskInfoSchema.virtual('privacy').set(function (newValue) {
-        Invariants.check(privacyInvariants(newValue));
         this._privacy = newValue;
     });
     taskInfoSchema.virtual('previousVersion').get(function () {
@@ -82,13 +73,21 @@ var TaskInfo;
         Invariants.check(Invariants.Predefined.isDefinedAndNotNull(newValue));
         this._taskGroup = newValue;
     });
+    taskInfoSchema.path('_privacy').validate(function (value) {
+        var name = TaskPrivacy[value];
+        return name !== null && name !== undefined;
+    });
     taskInfoSchema.plugin(updatedStatusPlugin);
     TaskInfo.model = mongoose.model('TaskInfo', taskInfoSchema);
+    (function (TaskPrivacy) {
+        TaskPrivacy[TaskPrivacy["Private"] = 0] = "Private";
+        TaskPrivacy[TaskPrivacy["Public"] = 1] = "Public";
+    })(TaskInfo.TaskPrivacy || (TaskInfo.TaskPrivacy = {}));
+    var TaskPrivacy = TaskInfo.TaskPrivacy;
+    ;
     function invariants(taskInfo) {
         return Q.fcall(function () {
-            return [
-                privacyInvariants(taskInfo.privacy),
-            ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
+            return [].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
         });
     }
     TaskInfo.invariants = invariants;

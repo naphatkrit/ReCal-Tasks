@@ -8,20 +8,29 @@ import updatedStatusPlugin = require("./plugins/updated_status");
 // NOTE: wrapping into a module prevents the issue of defining a model twice when you include this in two different places
 module User
 {
+    /******************************************
+     * Schema
+     *****************************************/
     let userSchema = new mongoose.Schema({
-        _username: String,
+        _username: {
+            type: String,
+            required: true,
+        },
         _taskGroups: [{
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'TaskGroup'
+            ref: 'TaskGroup',
         }],
         _tasks: [{
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Task'
+            ref: 'Task',
         }]
     }, {
             autoIndex: process.env.NODE_ENV === 'development',
         })
 
+    /******************************************
+     * Getters/Setters
+     *****************************************/
     userSchema.virtual('username').get(function(): string
     {
         if (this._username === undefined || this._username === null)
@@ -58,10 +67,19 @@ module User
         this._taskGroups = newValue;
     })
 
+    /******************************************
+     * Plugins
+     *****************************************/
     userSchema.plugin(updatedStatusPlugin);
 
+    /******************************************
+     * Model
+     *****************************************/
     export var model = mongoose.model('User', userSchema);
 
+    /******************************************
+     * Exported Interfaces
+     *****************************************/
     export interface Instance extends mongoose.Document
     {
         username: string

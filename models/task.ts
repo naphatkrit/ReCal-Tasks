@@ -6,42 +6,37 @@ import Invariants = require("../lib/invariants");
 
 module Task
 {
-    export enum TaskState { Incomplete, Complete };
-
-    let taskSchema = new mongoose.Schema({
-        _state: Number,
-        _taskInfo: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'TaskInfo'
-        }
-    }, {
+    /******************************************
+     * Schema
+     *****************************************/
+    let taskSchema = new mongoose.Schema(
+        {
+            _state: {
+                type: Number,
+                required: true
+            },
+            _taskInfo: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'TaskInfo',
+                required: true
+            }
+        }, {
             autoIndex: process.env.NODE_ENV === 'development',
         });
 
-    function stateInvariants(state: TaskState): Invariants.Invariant
-    {
-        return [
-            Invariants.Predefined.isDefinedAndNotNull(state),
-            () =>
-            {
-                let stateName = TaskState[state];
-                return stateName !== null || stateName !== undefined;
-            }
-        ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue)
-    }
-
+    /******************************************
+     * Getters/Setters
+     *****************************************/
     taskSchema.virtual('state').get(function(): TaskState
     {
         if (this._state === null || this._state === undefined)
         {
             return TaskState.Incomplete;
         }
-        Invariants.check(stateInvariants(this._state));
         return this._state;
     })
     taskSchema.virtual('state').set(function(newState: TaskState)
     {
-        Invariants.check(stateInvariants(newState));
         this._state = newState;
     })
 
@@ -58,10 +53,29 @@ module Task
         this._taskInfo = newValue;
     })
 
+    /******************************************
+     * Validations
+     *****************************************/
+    taskSchema.path('_state').validate(function(value)
+    {
+        let stateName = TaskState[value];
+        return stateName !== null && stateName !== undefined;
+    })
+
+    /******************************************
+     * Plugins
+     *****************************************/
     taskSchema.plugin(updatedStatusPlugin);
 
+    /******************************************
+     * Model
+     *****************************************/
     export var model = mongoose.model("Task", taskSchema);
 
+    /******************************************
+     * Exported Interfaces
+     *****************************************/
+    export enum TaskState { Incomplete, Complete };
     export interface Instance extends mongoose.Document
     {
         state: TaskState;
@@ -69,12 +83,18 @@ module Task
         execPopulate(): mongoose.Promise<Instance>
     }
 
+    /******************************************
+     * Invariants
+     *****************************************/
+    /**
+     * Mongoose does not support model level validation. Do that here.
+     */
     export function invariants(task): Q.Promise<Invariants.Invariant>
     {
         return Q.fcall(() =>
         {
             return [
-                stateInvariants(task.state)
+
             ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
         })
     }

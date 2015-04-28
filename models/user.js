@@ -5,14 +5,17 @@ var updatedStatusPlugin = require("./plugins/updated_status");
 var User;
 (function (User) {
     var userSchema = new mongoose.Schema({
-        _username: String,
+        _username: {
+            type: String,
+            required: true,
+        },
         _taskGroups: [{
                 type: mongoose.Schema.Types.ObjectId,
-                ref: 'TaskGroup'
+                ref: 'TaskGroup',
             }],
         _tasks: [{
                 type: mongoose.Schema.Types.ObjectId,
-                ref: 'Task'
+                ref: 'Task',
             }]
     }, {
         autoIndex: process.env.NODE_ENV === 'development',

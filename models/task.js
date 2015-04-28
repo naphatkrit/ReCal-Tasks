@@ -4,39 +4,26 @@ var updatedStatusPlugin = require("./plugins/updated_status");
 var Invariants = require("../lib/invariants");
 var Task;
 (function (Task) {
-    (function (TaskState) {
-        TaskState[TaskState["Incomplete"] = 0] = "Incomplete";
-        TaskState[TaskState["Complete"] = 1] = "Complete";
-    })(Task.TaskState || (Task.TaskState = {}));
-    var TaskState = Task.TaskState;
-    ;
     var taskSchema = new mongoose.Schema({
-        _state: Number,
+        _state: {
+            type: Number,
+            required: true
+        },
         _taskInfo: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'TaskInfo'
+            ref: 'TaskInfo',
+            required: true
         }
     }, {
         autoIndex: process.env.NODE_ENV === 'development',
     });
-    function stateInvariants(state) {
-        return [
-            Invariants.Predefined.isDefinedAndNotNull(state),
-            function () {
-                var stateName = TaskState[state];
-                return stateName !== null || stateName !== undefined;
-            }
-        ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
-    }
     taskSchema.virtual('state').get(function () {
         if (this._state === null || this._state === undefined) {
             return TaskState.Incomplete;
         }
-        Invariants.check(stateInvariants(this._state));
         return this._state;
     });
     taskSchema.virtual('state').set(function (newState) {
-        Invariants.check(stateInvariants(newState));
         this._state = newState;
     });
     taskSchema.virtual('taskInfo').get(function () {
@@ -48,13 +35,21 @@ var Task;
     taskSchema.virtual('taskInfo').set(function (newValue) {
         this._taskInfo = newValue;
     });
+    taskSchema.path('_state').validate(function (value) {
+        var stateName = TaskState[value];
+        return stateName !== null && stateName !== undefined;
+    });
     taskSchema.plugin(updatedStatusPlugin);
     Task.model = mongoose.model("Task", taskSchema);
+    (function (TaskState) {
+        TaskState[TaskState["Incomplete"] = 0] = "Incomplete";
+        TaskState[TaskState["Complete"] = 1] = "Complete";
+    })(Task.TaskState || (Task.TaskState = {}));
+    var TaskState = Task.TaskState;
+    ;
     function invariants(task) {
         return Q.fcall(function () {
-            return [
-                stateInvariants(task.state)
-            ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
+            return [].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
         });
     }
     Task.invariants = invariants;

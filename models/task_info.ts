@@ -6,33 +6,33 @@ import Invariants = require("../lib/invariants");
 
 module TaskInfo
 {
-    export enum TaskPrivacy { Private, Public };
-    function privacyInvariants(privacy: TaskPrivacy)
-    {
-        return [
-            Invariants.Predefined.isDefinedAndNotNull(privacy),
-            () =>
-            {
-                let name = TaskPrivacy[privacy];
-                return name !== null || name !== undefined;
-            }
-        ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue)
-    }
-
     let taskInfoSchema = new mongoose.Schema({
-        _title: String,
-        _description: String,
-        _privacy: Number,
+        _title: {
+            type: String,
+            required: true
+        },
+        _description: {
+            type: String,
+            required: true
+        },
+        _privacy: {
+            type: Number,
+            required: true
+        },
         _previousVersion: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'TaskInfo'
+            ref: 'TaskInfo',
         },
         _taskGroup: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'TaskGroup'
+            ref: 'TaskGroup',
+            required: true
         }
     })
 
+    /******************************************
+     * Getters/Setters
+     *****************************************/
     taskInfoSchema.virtual('title').get(function(): string
     {
         if (this._title === null || this._title === undefined)
@@ -43,7 +43,6 @@ module TaskInfo
     })
     taskInfoSchema.virtual('title').set(function(newValue: string)
     {
-        Invariants.check(Invariants.Predefined.isDefinedAndNotNull(newValue))
         this._title = newValue;
     })
     taskInfoSchema.virtual('description').get(function(): string
@@ -56,7 +55,6 @@ module TaskInfo
     })
     taskInfoSchema.virtual('description').set(function(newValue: string)
     {
-        Invariants.check(Invariants.Predefined.isDefinedAndNotNull(newValue));
         this._description = newValue;
     })
     taskInfoSchema.virtual('privacy').get(function(): TaskPrivacy
@@ -65,12 +63,10 @@ module TaskInfo
         {
             return TaskPrivacy.Private;
         }
-        Invariants.check(privacyInvariants(this._privacy));
         return this._privacy;
     })
     taskInfoSchema.virtual('privacy').set(function(newValue: TaskPrivacy)
     {
-        Invariants.check(privacyInvariants(newValue));
         this._privacy = newValue;
     })
     taskInfoSchema.virtual('previousVersion').get(function()
@@ -99,10 +95,29 @@ module TaskInfo
         this._taskGroup = newValue;
     })
 
+    /******************************************
+     * Validations
+     *****************************************/
+    taskInfoSchema.path('_privacy').validate(function(value)
+    {
+        let name = TaskPrivacy[value];
+        return name !== null && name !== undefined;
+    })
+
+    /******************************************
+     * Plugins
+     *****************************************/
     taskInfoSchema.plugin(updatedStatusPlugin);
 
+    /******************************************
+     * Model
+     *****************************************/
     export var model = mongoose.model('TaskInfo', taskInfoSchema)
 
+    /******************************************
+     * Exported Interfaces
+     *****************************************/
+    export enum TaskPrivacy { Private, Public };
     export interface Instance extends mongoose.Document
     {
         title: string
@@ -113,12 +128,17 @@ module TaskInfo
         execPopulate(): mongoose.Promise<Instance>
     }
 
+    /******************************************
+     * Invariants
+     *****************************************/
+    /**
+     * Mongoose does not support model level validation. Do that here.
+     */
     export function invariants(taskInfo): Q.Promise<Invariants.Invariant>
     {
         return Q.fcall(() =>
         {
             return [
-                privacyInvariants(taskInfo.privacy),
             ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue)
         })
     }

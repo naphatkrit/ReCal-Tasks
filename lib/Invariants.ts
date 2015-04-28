@@ -4,6 +4,17 @@ module Invariants
 {
     export type Invariant = () => boolean;
     let debug = Number(process.env.RECAL_DEBUG || "0") !== 0;
+    export function evaluate(invariant: Invariant): boolean
+    {
+        if (debug)
+        {
+            return invariant();
+        }
+        else
+        {
+            return true;
+        }
+    }
     export function check(invariant: Invariant)
     {
         if (debug)
