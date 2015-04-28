@@ -2,6 +2,7 @@ import mongoose = require('mongoose');
 import Q = require('q');
 
 import updatedStatusPlugin = require("./plugins/updated_status");
+import modelInvariantsPluginGenerator = require('./plugins/model_invariants');
 import Invariants = require("../lib/invariants");
 
 module TaskInfo
@@ -9,11 +10,10 @@ module TaskInfo
     let taskInfoSchema = new mongoose.Schema({
         _title: {
             type: String,
-            required: true
+            required: true // NOTE: required = not empty
         },
         _description: {
             type: String,
-            required: true
         },
         _privacy: {
             type: Number,
@@ -98,16 +98,21 @@ module TaskInfo
     /******************************************
      * Validations
      *****************************************/
+
+    taskInfoSchema.path('_description').validate(
+        (value) => { return value !== null && value !== undefined },
+        "TaskInfo description validation failed. It can be empty, but must be defined.");
     taskInfoSchema.path('_privacy').validate(function(value)
     {
         let name = TaskPrivacy[value];
         return name !== null && name !== undefined;
-    })
+    }, "TaskInfo privacy validation failed with value `{VALUE}`")
 
     /******************************************
      * Plugins
      *****************************************/
     taskInfoSchema.plugin(updatedStatusPlugin);
+    taskInfoSchema.plugin(modelInvariantsPluginGenerator(invariants))
 
     /******************************************
      * Model
@@ -134,7 +139,7 @@ module TaskInfo
     /**
      * Mongoose does not support model level validation. Do that here.
      */
-    export function invariants(taskInfo): Q.Promise<Invariants.Invariant>
+    function invariants(taskInfo): Q.Promise<Invariants.Invariant>
     {
         return Q.fcall(() =>
         {

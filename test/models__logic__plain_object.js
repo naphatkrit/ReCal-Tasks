@@ -4,7 +4,6 @@ var Models = require('../models/index');
 var Task = require('../models/task');
 var TaskGroup = require('../models/task_group');
 var TaskInfo = require('../models/task_info');
-var Invariants = require('../lib/invariants');
 var PromiseAdapter = require('../lib/promise_adapter');
 var PlainObject = require('../models/logic/plain_object');
 function createTaskGroup() {
@@ -21,10 +20,7 @@ function createTaskGroup() {
         }
     });
     return deferred.promise.then(function (doc) {
-        return TaskGroup.invariants(doc).then(function (invariants) {
-            Invariants.check(invariants);
-            return doc;
-        });
+        return doc;
     });
 }
 function createTaskInfo(taskGroup) {
@@ -46,10 +42,7 @@ function createTaskInfo(taskGroup) {
         }
     });
     return deferred.promise.then(function (doc) {
-        return TaskInfo.invariants(doc).then(function (invariants) {
-            Invariants.check(invariants);
-            return doc;
-        });
+        return doc;
     });
 }
 function createTask(taskInfo) {
@@ -68,10 +61,7 @@ function createTask(taskInfo) {
         }
     });
     return deferred.promise.then(function (doc) {
-        return Task.invariants(doc).then(function (invariants) {
-            Invariants.check(invariants);
-            return doc;
-        });
+        return doc;
     });
 }
 describe('Models Logic - Plain Object Unit Tests', function () {

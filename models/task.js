@@ -1,6 +1,7 @@
 var mongoose = require("mongoose");
 var Q = require('q');
 var updatedStatusPlugin = require("./plugins/updated_status");
+var modelInvariantsPluginGenerator = require('./plugins/model_invariants');
 var Invariants = require("../lib/invariants");
 var Task;
 (function (Task) {
@@ -40,6 +41,7 @@ var Task;
         return stateName !== null && stateName !== undefined;
     });
     taskSchema.plugin(updatedStatusPlugin);
+    taskSchema.plugin(modelInvariantsPluginGenerator(invariants));
     Task.model = mongoose.model("Task", taskSchema);
     (function (TaskState) {
         TaskState[TaskState["Incomplete"] = 0] = "Incomplete";
@@ -52,6 +54,5 @@ var Task;
             return [].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
         });
     }
-    Task.invariants = invariants;
 })(Task || (Task = {}));
 module.exports = Task;

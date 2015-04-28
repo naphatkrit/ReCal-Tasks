@@ -28,11 +28,7 @@ function createTaskGroup(): Q.Promise<TaskGroup.Instance>
     });
     return deferred.promise.then((doc) =>
     {
-        return TaskGroup.invariants(doc).then((invariants) =>
-        {
-            Invariants.check(invariants);
-            return doc;
-        })
+        return doc;
     });
 }
 function createTaskInfo(taskGroup: TaskGroup.Instance): Q.Promise<TaskInfo.Instance>
@@ -58,11 +54,7 @@ function createTaskInfo(taskGroup: TaskGroup.Instance): Q.Promise<TaskInfo.Insta
     });
     return deferred.promise.then((doc) =>
     {
-        return TaskInfo.invariants(doc).then((invariants) =>
-        {
-            Invariants.check(invariants);
-            return doc;
-        })
+        return doc;
     });
 }
 
@@ -86,11 +78,7 @@ function createTask(taskInfo: TaskInfo.Instance): Q.Promise<Task.Instance>
     });
     return deferred.promise.then((doc) =>
     {
-        return Task.invariants(doc).then((invariants) =>
-        {
-            Invariants.check(invariants);
-            return doc;
-        })
+        return doc;
     });
 }
 

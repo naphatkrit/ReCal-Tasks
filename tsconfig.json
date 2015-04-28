@@ -38,6 +38,8 @@
         "./models/index.ts",
         "./models/logic/plain_object.ts",
         "./models/logic/query.ts",
+        "./models/logic/task_logic.ts",
+        "./models/plugins/model_invariants.ts",
         "./models/plugins/updated_status.ts",
         "./models/task.ts",
         "./models/task_group.ts",

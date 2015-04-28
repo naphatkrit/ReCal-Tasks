@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var Q = require('q');
 var updatedStatusPlugin = require("./plugins/updated_status");
+var modelInvariantsPluginGenerator = require('./plugins/model_invariants');
 var Invariants = require("../lib/invariants");
 var TaskInfo;
 (function (TaskInfo) {
@@ -11,7 +12,6 @@ var TaskInfo;
         },
         _description: {
             type: String,
-            required: true
         },
         _privacy: {
             type: Number,
@@ -73,11 +73,13 @@ var TaskInfo;
         Invariants.check(Invariants.Predefined.isDefinedAndNotNull(newValue));
         this._taskGroup = newValue;
     });
+    taskInfoSchema.path('_description').validate(function (value) { return value !== null && value !== undefined; }, "TaskInfo description validation failed. It can be empty, but must be defined.");
     taskInfoSchema.path('_privacy').validate(function (value) {
         var name = TaskPrivacy[value];
         return name !== null && name !== undefined;
-    });
+    }, "TaskInfo privacy validation failed with value `{VALUE}`");
     taskInfoSchema.plugin(updatedStatusPlugin);
+    taskInfoSchema.plugin(modelInvariantsPluginGenerator(invariants));
     TaskInfo.model = mongoose.model('TaskInfo', taskInfoSchema);
     (function (TaskPrivacy) {
         TaskPrivacy[TaskPrivacy["Private"] = 0] = "Private";
@@ -90,6 +92,5 @@ var TaskInfo;
             return [].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
         });
     }
-    TaskInfo.invariants = invariants;
 })(TaskInfo || (TaskInfo = {}));
 module.exports = TaskInfo;

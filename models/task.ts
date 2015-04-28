@@ -2,6 +2,7 @@ import mongoose = require("mongoose");
 import Q = require('q');
 
 import updatedStatusPlugin = require("./plugins/updated_status");
+import modelInvariantsPluginGenerator = require('./plugins/model_invariants');
 import Invariants = require("../lib/invariants");
 
 module Task
@@ -66,6 +67,7 @@ module Task
      * Plugins
      *****************************************/
     taskSchema.plugin(updatedStatusPlugin);
+    taskSchema.plugin(modelInvariantsPluginGenerator(invariants))
 
     /******************************************
      * Model
@@ -89,7 +91,7 @@ module Task
     /**
      * Mongoose does not support model level validation. Do that here.
      */
-    export function invariants(task): Q.Promise<Invariants.Invariant>
+    function invariants(task): Q.Promise<Invariants.Invariant>
     {
         return Q.fcall(() =>
         {
