@@ -4,6 +4,7 @@ var Models = require('../models/index');
 var Task = require('../models/task');
 var TaskGroup = require('../models/task_group');
 var TaskInfo = require('../models/task_info');
+var User = require('../models/user');
 var PromiseAdapter = require('../lib/promise_adapter');
 var PlainObject = require('../models/logic/plain_object');
 function createTaskGroup() {
@@ -53,6 +54,23 @@ function createTask(taskInfo) {
     });
     task.taskInfo = taskInfo;
     task.save(function (err, doc) {
+        if (err) {
+            deferred.reject(err);
+        }
+        else {
+            deferred.resolve(doc);
+        }
+    });
+    return deferred.promise.then(function (doc) {
+        return doc;
+    });
+}
+function createUser() {
+    var deferred = Q.defer();
+    var user = new User.model({
+        _username: 'testuser'
+    });
+    user.save(function (err, doc) {
         if (err) {
             deferred.reject(err);
         }
@@ -248,6 +266,36 @@ describe('Models Logic - Plain Object Unit Tests', function () {
                         assert(plainObject.taskInfo.taskGroup.id === taskGroup.id);
                         assert(plainObject.taskInfo.taskGroup.name === taskGroup.name);
                     });
+                });
+            });
+        });
+    });
+    describe('convertUserInstance()', function () {
+        var userId = '';
+        beforeEach(function (done) {
+            createUser().then(function (user) {
+                userId = user.id;
+                done();
+            }, function (err) {
+                done(err);
+            });
+        });
+        afterEach(function (done) {
+            User.model.findByIdAndRemove(userId, done);
+        });
+        it('Should fail when given null as an argument', function (done) {
+            PlainObject.convertUserInstance(null).then(function () {
+                done(new Error('Did not fail'));
+            }, function (err) {
+                done();
+            });
+        });
+        it('Should successfully create a plain object', function () {
+            return PromiseAdapter.convertMongooseQuery(User.model.findById(userId))
+                .then(function (user) {
+                return PlainObject.convertUserInstance(user).then(function (plainObject) {
+                    assert(plainObject.id === user.id);
+                    assert(plainObject.username === user.username);
                 });
             });
         });

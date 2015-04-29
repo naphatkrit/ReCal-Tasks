@@ -91,9 +91,9 @@ module User
 
     function invariants(user: Instance): Q.Promise<Invariants.Invariant>
     {
-        return PromiseAdapter.convertMongooseQuery((<any>(user.populate('_taskGroups _tasks'))).execPopulate()).then((user) =>
+        return PromiseAdapter.convertMongooseDocumentPopulate(user, "_taskGroups _tasks").then((user) =>
         {
-            return PromiseAdapter.convertMongoosePromise(mongoose.model('TaskGroup').populate(user, { path: '_taskGroups._taskInfo' }))
+            return PromiseAdapter.convertMongoosePromise(mongoose.model('TaskInfo').populate(user, { path: '_tasks._taskInfo' }))
         }).then((user: any) =>
         {
             return [

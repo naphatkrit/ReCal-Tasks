@@ -6,6 +6,7 @@ import models = require('../index');
 import Task = require('../task');
 import TaskInfo = require('../task_info');
 import TaskGroup = require('../task_group');
+import User = require('../user');
 import PromiseAdapter = require('../../lib/promise_adapter');
 
 module PlainObject
@@ -67,6 +68,20 @@ module PlainObject
             }
         })
     }
+
+    export function convertUserInstance(user: User.Instance): Q.Promise<Interfaces.UserPlainObject>
+    {
+        return Q.fcall(() =>
+        {
+            assert(user !== null && user !== undefined);
+        }).then(() =>
+        {
+            return {
+                id: user.id,
+                username: user.username
+            }
+        })
+    }
 }
 
 module PlainObject
@@ -92,6 +107,11 @@ module PlainObject
             id?: string, // optional since new objects don't have id
             state: Task.TaskState,
             taskInfo: TaskInfoPlainObject,
+        }
+        export interface UserPlainObject
+        {
+            id: string,
+            username: string,
         }
     }
 }

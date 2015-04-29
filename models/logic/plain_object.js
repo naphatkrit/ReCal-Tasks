@@ -48,5 +48,16 @@ var PlainObject;
         });
     }
     PlainObject.convertTaskInstance = convertTaskInstance;
+    function convertUserInstance(user) {
+        return Q.fcall(function () {
+            assert(user !== null && user !== undefined);
+        }).then(function () {
+            return {
+                id: user.id,
+                username: user.username
+            };
+        });
+    }
+    PlainObject.convertUserInstance = convertUserInstance;
 })(PlainObject || (PlainObject = {}));
 module.exports = PlainObject;

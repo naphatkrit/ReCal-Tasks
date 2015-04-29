@@ -51,8 +51,8 @@ var User;
     userSchema.plugin(modelInvariantsPluginGenerator(invariants));
     User.model = mongoose.model('User', userSchema);
     function invariants(user) {
-        return PromiseAdapter.convertMongooseQuery((user.populate('_taskGroups _tasks')).execPopulate()).then(function (user) {
-            return PromiseAdapter.convertMongoosePromise(mongoose.model('TaskGroup').populate(user, { path: '_taskGroups._taskInfo' }));
+        return PromiseAdapter.convertMongooseDocumentPopulate(user, "_taskGroups _tasks").then(function (user) {
+            return PromiseAdapter.convertMongoosePromise(mongoose.model('TaskInfo').populate(user, { path: '_tasks._taskInfo' }));
         }).then(function (user) {
             return [
                 Invariants.Predefined.isNotEmpty(user.username),
