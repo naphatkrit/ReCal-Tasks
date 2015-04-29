@@ -36,13 +36,30 @@ module PromiseAdapter
     export function convertMongoosePromise<T>(promise: mongoose.Promise<T>): Q.Promise<T>
     {
         let deferred = Q.defer<T>();
-        promise.then((success) =>
-        {
-            deferred.resolve(success);
-        }, (error) =>
+        promise.then(
+            (success) =>
+            {
+                deferred.resolve(success);
+            }, (error) =>
             {
                 deferred.reject(error);
             })
+        return deferred.promise;
+    }
+
+    export function convertMongooseDocumentSave<T extends mongoose.Document>(document: T): Q.Promise<T>
+    {
+        let deferred = Q.defer<T>();
+        document.save((err) =>
+        {
+            if (err)
+            {
+                deferred.reject(err);
+            } else
+            {
+                deferred.resolve(document);
+            }
+        })
         return deferred.promise;
     }
 }

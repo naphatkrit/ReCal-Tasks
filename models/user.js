@@ -2,17 +2,21 @@ var mongoose = require('mongoose');
 var Invariants = require("../lib/invariants");
 var PromiseAdapter = require("../lib/promise_adapter");
 var updatedStatusPlugin = require("./plugins/updated_status");
+var modelInvariantsPluginGenerator = require('./plugins/model_invariants');
 var User;
 (function (User) {
     var userSchema = new mongoose.Schema({
-        _username: String,
+        _username: {
+            type: String,
+            required: true,
+        },
         _taskGroups: [{
                 type: mongoose.Schema.Types.ObjectId,
-                ref: 'TaskGroup'
+                ref: 'TaskGroup',
             }],
         _tasks: [{
                 type: mongoose.Schema.Types.ObjectId,
-                ref: 'Task'
+                ref: 'Task',
             }]
     }, {
         autoIndex: process.env.NODE_ENV === 'development',
@@ -44,6 +48,7 @@ var User;
         this._taskGroups = newValue;
     });
     userSchema.plugin(updatedStatusPlugin);
+    userSchema.plugin(modelInvariantsPluginGenerator(invariants));
     User.model = mongoose.model('User', userSchema);
     function invariants(user) {
         return PromiseAdapter.convertMongooseQuery((user.populate('_taskGroups _tasks')).execPopulate()).then(function (user) {
@@ -60,6 +65,5 @@ var User;
             ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
         });
     }
-    User.invariants = invariants;
 })(User || (User = {}));
 module.exports = User;

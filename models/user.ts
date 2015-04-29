@@ -4,24 +4,34 @@ import Q = require('q');
 import Invariants = require("../lib/invariants");
 import PromiseAdapter = require("../lib/promise_adapter");
 import updatedStatusPlugin = require("./plugins/updated_status");
+import modelInvariantsPluginGenerator = require('./plugins/model_invariants');
 
 // NOTE: wrapping into a module prevents the issue of defining a model twice when you include this in two different places
 module User
 {
+    /******************************************
+     * Schema
+     *****************************************/
     let userSchema = new mongoose.Schema({
-        _username: String,
+        _username: {
+            type: String,
+            required: true,
+        },
         _taskGroups: [{
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'TaskGroup'
+            ref: 'TaskGroup',
         }],
         _tasks: [{
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Task'
+            ref: 'Task',
         }]
     }, {
             autoIndex: process.env.NODE_ENV === 'development',
         })
 
+    /******************************************
+     * Getters/Setters
+     *****************************************/
     userSchema.virtual('username').get(function(): string
     {
         if (this._username === undefined || this._username === null)
@@ -58,10 +68,20 @@ module User
         this._taskGroups = newValue;
     })
 
+    /******************************************
+     * Plugins
+     *****************************************/
     userSchema.plugin(updatedStatusPlugin);
+    userSchema.plugin(modelInvariantsPluginGenerator(invariants))
 
+    /******************************************
+     * Model
+     *****************************************/
     export var model = mongoose.model('User', userSchema);
 
+    /******************************************
+     * Exported Interfaces
+     *****************************************/
     export interface Instance extends mongoose.Document
     {
         username: string
@@ -69,7 +89,7 @@ module User
         taskGroups: Array<mongoose.Types.ObjectId | any>
     }
 
-    export function invariants(user: Instance): Q.Promise<Invariants.Invariant>
+    function invariants(user: Instance): Q.Promise<Invariants.Invariant>
     {
         return PromiseAdapter.convertMongooseQuery((<any>(user.populate('_taskGroups _tasks'))).execPopulate()).then((user) =>
         {

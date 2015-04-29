@@ -10,23 +10,17 @@ passport.use(new (require('passport-cas').Strategy)({
     passReqToCallback: true,
 }, function(req, login, done)
     {
-        ModelQuery.findOrCreate(User.model, { _username: login }).then((user: any) =>
-        {
-            // User.invariants(user).then((invariants) =>
-            // {
-            //     console.log("Created Invariants");
-            //     Invariants.check(invariants)
+        ModelQuery.findOrCreate(User.model, { _username: login }).then(
+            (user: any) =>
+            {
                 done(null, {
                     userId: user.id
                 });
-            // }, (error)=>{
-            //     console.log("Error creating invariants");
-            //     throw error;
-            // })
-        }, (error) => {
-            console.log("Error creating a user")
-            throw error;
-        })
+            }, (error) =>
+            {
+                console.log("Error creating a user")
+                throw error;
+            })
     }));
 
 // we keep a dictionary of user data instead of a user model instance to prevent staleness
