@@ -1,6 +1,7 @@
 var assert = require('assert');
 var Q = require('q');
 var Models = require('../models/index');
+var Task = require('../models/task');
 var TaskGroup = require('../models/task_group');
 var TaskInfo = require('../models/task_info');
 var PromiseAdapter = require('../lib/promise_adapter');
@@ -147,7 +148,7 @@ describe('Task Logic Unit Tests', function () {
             });
         });
     });
-    describe('updateTaskInfo()', function () {
+    describe('createTask()', function () {
         var taskGroupId = '';
         var taskInfoId = '';
         beforeEach(function (done) {
@@ -172,68 +173,25 @@ describe('Task Logic Unit Tests', function () {
             });
         });
         it('Should fail when given null as an argument', function (done) {
-            TaskLogic.updateTaskInfo(null).then(function () {
+            TaskLogic.createTask(null).then(function () {
                 done(new Error('Did not fail'));
             }, function (err) {
                 done();
             });
         });
-        it('Should not accept a plain object with nonexistent Task Group id', function (done) {
-            TaskLogic.updateTaskInfo({
-                id: taskInfoId,
-                title: 'title',
-                description: '',
-                privacy: TaskInfo.TaskPrivacy.Private,
-                taskGroup: {
-                    id: '123456789123',
-                    name: 'Dummy Task Group'
-                }
-            }).then(function () {
-                done(new Error('Did not fail'));
-            }, function (err) {
-                done();
-            });
-        });
-        it('Should not accept a plain object with errorneous Task Group name', function (done) {
-            TaskLogic.updateTaskInfo({
-                id: taskInfoId,
-                title: 'title',
-                description: '',
-                privacy: TaskInfo.TaskPrivacy.Private,
-                taskGroup: {
-                    id: taskGroupId,
-                    name: 'Dummy Task '
-                }
-            }).then(function () {
-                done(new Error('Did not fail'));
-            }, function (err) {
-                done();
-            });
-        });
-        it('Should not accept a plain object without id', function (done) {
-            TaskLogic.updateTaskInfo({
-                title: 'title',
-                description: '',
-                privacy: TaskInfo.TaskPrivacy.Private,
-                taskGroup: {
-                    id: taskGroupId,
-                    name: 'Dummy Task Group'
-                }
-            }).then(function () {
-                done(new Error('Did not fail'));
-            }, function (err) {
-                done();
-            });
-        });
-        it('Should not accept a plain object with nonexistent id', function (done) {
-            TaskLogic.updateTaskInfo({
+        it('Should not accept a plain object with id', function (done) {
+            TaskLogic.createTask({
                 id: '123456789123',
-                title: 'title',
-                description: '',
-                privacy: TaskInfo.TaskPrivacy.Private,
-                taskGroup: {
-                    id: taskGroupId,
-                    name: 'Dummy Task Group'
+                state: Task.TaskState.Incomplete,
+                taskInfo: {
+                    id: taskInfoId,
+                    title: 'Dummy Task',
+                    description: '',
+                    privacy: TaskInfo.TaskPrivacy.Private,
+                    taskGroup: {
+                        id: taskGroupId,
+                        name: 'Dummy Task Group'
+                    }
                 }
             }).then(function () {
                 done(new Error('Did not fail'));
@@ -241,26 +199,89 @@ describe('Task Logic Unit Tests', function () {
                 done();
             });
         });
-        it('Should successfully update a task info', function () {
-            var title = 'title';
-            var description = 'description';
-            var privacy = TaskInfo.TaskPrivacy.Public;
-            return TaskLogic.updateTaskInfo({
-                id: taskInfoId,
-                title: title,
-                description: description,
-                privacy: privacy,
-                taskGroup: {
-                    id: taskGroupId,
-                    name: 'Dummy Task Group'
+        it('Should not accept a plain object with incorrect task info plain object', function (done) {
+            TaskLogic.createTask({
+                state: Task.TaskState.Incomplete,
+                taskInfo: {
+                    id: taskInfoId,
+                    title: 'Dummy Task blah blah',
+                    description: '',
+                    privacy: TaskInfo.TaskPrivacy.Private,
+                    taskGroup: {
+                        id: taskGroupId,
+                        name: 'Dummy Task Group'
+                    }
                 }
-            }).then(function (taskInfoPlainObject) {
-                assert(taskInfoPlainObject.id === taskInfoId);
-                assert(taskInfoPlainObject.title === title);
-                assert(taskInfoPlainObject.description === description);
-                assert(taskInfoPlainObject.privacy === privacy);
-                assert(taskInfoPlainObject.taskGroup.id === taskGroupId);
-                return taskInfoPlainObject;
+            }).then(function () {
+                done(new Error('Did not fail'));
+            }, function (err) {
+                done();
+            });
+        });
+        it('Should successfully create a task with existing task info', function () {
+            var state = Task.TaskState.Complete;
+            var title = 'Dummy Task';
+            var description = '';
+            var privacy = TaskInfo.TaskPrivacy.Private;
+            var groupName = 'Dummy Task Group';
+            return TaskLogic.createTask({
+                state: state,
+                taskInfo: {
+                    id: taskInfoId,
+                    title: title,
+                    description: description,
+                    privacy: privacy,
+                    taskGroup: {
+                        id: taskGroupId,
+                        name: groupName
+                    }
+                }
+            }).then(function (taskPlainObject) {
+                assert(taskPlainObject.id !== null && taskPlainObject.id !== undefined);
+                assert(taskPlainObject.state === state);
+                assert(taskPlainObject.taskInfo.id === taskInfoId);
+                assert(taskPlainObject.taskInfo.title === title);
+                assert(taskPlainObject.taskInfo.description === description);
+                assert(taskPlainObject.taskInfo.privacy === privacy);
+                assert(taskPlainObject.taskInfo.taskGroup.id === taskGroupId);
+                assert(taskPlainObject.taskInfo.taskGroup.name === groupName);
+                return taskPlainObject;
+            }).then(function (taskPlainObject) {
+                return PromiseAdapter.convertMongooseQuery(Task.model.findByIdAndRemove(taskPlainObject.id));
+            });
+        });
+        it('Should successfully create a task with a new task info', function () {
+            var state = Task.TaskState.Incomplete;
+            var title = 'Dummy Task 2';
+            var description = 'dasfklasdf';
+            var privacy = TaskInfo.TaskPrivacy.Public;
+            var groupName = 'Dummy Task Group';
+            return TaskLogic.createTask({
+                state: state,
+                taskInfo: {
+                    title: title,
+                    description: description,
+                    privacy: privacy,
+                    taskGroup: {
+                        id: taskGroupId,
+                        name: groupName
+                    }
+                }
+            }).then(function (taskPlainObject) {
+                assert(taskPlainObject.id !== null && taskPlainObject.id !== undefined);
+                assert(taskPlainObject.state === state);
+                assert(taskPlainObject.taskInfo.id !== null && taskPlainObject.taskInfo.id !== undefined);
+                assert(taskPlainObject.taskInfo.title === title);
+                assert(taskPlainObject.taskInfo.description === description);
+                assert(taskPlainObject.taskInfo.privacy === privacy);
+                assert(taskPlainObject.taskInfo.taskGroup.id === taskGroupId);
+                assert(taskPlainObject.taskInfo.taskGroup.name === groupName);
+                return taskPlainObject;
+            }).then(function (taskPlainObject) {
+                return Q.all([
+                    PromiseAdapter.convertMongooseQuery(Task.model.findByIdAndRemove(taskPlainObject.id)),
+                    PromiseAdapter.convertMongooseQuery(TaskInfo.model.findByIdAndRemove(taskPlainObject.taskInfo.id))
+                ]);
             });
         });
     });
