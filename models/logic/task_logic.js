@@ -62,5 +62,37 @@ var TaskLogic;
         });
     }
     TaskLogic.createTask = createTask;
+    function updateTask(taskPlainObject) {
+        return Q.fcall(function () {
+            assert(taskPlainObject !== null && taskPlainObject !== undefined);
+            assert(taskPlainObject.id !== null && taskPlainObject.id !== undefined);
+        }).then(function () {
+            if (taskPlainObject.taskInfo.id) {
+                return PromiseAdapter.convertMongooseQuery(TaskInfo.model.count({
+                    _id: mongoose.Types.ObjectId(taskPlainObject.taskInfo.id),
+                    _title: taskPlainObject.taskInfo.title,
+                    _description: taskPlainObject.taskInfo.description,
+                    _privacy: taskPlainObject.taskInfo.privacy,
+                    _taskGroup: mongoose.Types.ObjectId(taskPlainObject.taskInfo.taskGroup.id)
+                })).then(function (count) {
+                    assert(count > 0, "Task Info Plain Object must correspond to a valid Task Info instance.");
+                }).then(function () {
+                    return taskPlainObject.taskInfo.id;
+                });
+            }
+            else {
+                return createTaskInfo(taskPlainObject.taskInfo).then(function (taskInfoPlainObject) { return taskInfoPlainObject.id; });
+            }
+        }).then(function (taskInfoId) {
+            return PromiseAdapter.convertMongooseQuery(Task.model.findById(taskPlainObject.id)).then(function (task) {
+                task.state = taskPlainObject.state;
+                task.taskInfo = mongoose.Types.ObjectId(taskInfoId);
+                return PromiseAdapter.convertMongooseDocumentSave(task);
+            });
+        }).then(function (task) {
+            return PlainObject.convertTaskInstance(task);
+        });
+    }
+    TaskLogic.updateTask = updateTask;
 })(TaskLogic || (TaskLogic = {}));
 module.exports = TaskLogic;

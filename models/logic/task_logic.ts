@@ -78,5 +78,47 @@ module TaskLogic
             return PlainObject.convertTaskInstance(task)
         })
     }
+
+    export function updateTask(taskPlainObject: PlainObject.Interfaces.TaskPlainObject): Q.Promise<PlainObject.Interfaces.TaskPlainObject>
+    {
+        return Q.fcall(() =>
+        {
+            assert(taskPlainObject !== null && taskPlainObject !== undefined);
+            assert(taskPlainObject.id !== null && taskPlainObject.id !== undefined);
+        }).then(() =>
+        {
+            if (taskPlainObject.taskInfo.id)
+            {
+                return PromiseAdapter.convertMongooseQuery(TaskInfo.model.count({
+                    _id: (<any>mongoose.Types.ObjectId)(taskPlainObject.taskInfo.id),
+                    _title: taskPlainObject.taskInfo.title,
+                    _description: taskPlainObject.taskInfo.description,
+                    _privacy: taskPlainObject.taskInfo.privacy,
+                    _taskGroup: (<any>mongoose.Types.ObjectId)(taskPlainObject.taskInfo.taskGroup.id)
+                })).then((count) =>
+                {
+                    assert(count > 0, "Task Info Plain Object must correspond to a valid Task Info instance.")
+                }).then(() =>
+                {
+                    return taskPlainObject.taskInfo.id;
+                })
+            }
+            else
+            {
+                return createTaskInfo(taskPlainObject.taskInfo).then((taskInfoPlainObject) => { return taskInfoPlainObject.id });
+            }
+        }).then((taskInfoId: string) =>
+        {
+            return PromiseAdapter.convertMongooseQuery(Task.model.findById(taskPlainObject.id)).then((task: Task.Instance) =>
+            {
+                task.state = taskPlainObject.state;
+                task.taskInfo = (<any>mongoose.Types.ObjectId)(taskInfoId)
+                return PromiseAdapter.convertMongooseDocumentSave(task)
+            })
+        }).then((task: Task.Instance) =>
+        {
+            return PlainObject.convertTaskInstance(task)
+        })
+    }
 }
 export = TaskLogic;

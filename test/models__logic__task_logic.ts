@@ -59,6 +59,30 @@ function createTaskInfo(taskGroup: TaskGroup.Instance): Q.Promise<TaskInfo.Insta
     });
 }
 
+function createTask(taskInfo: TaskInfo.Instance): Q.Promise<Task.Instance>
+{
+    let deferred = Q.defer<Task.Instance>();
+    let task = <Task.Instance> new Task.model({
+        _state: Task.TaskState.Incomplete,
+        _taskInfo: null
+    });
+    task.taskInfo = taskInfo;
+    task.save<Task.Instance>((err, doc) =>
+    {
+        if (err)
+        {
+            deferred.reject(err);
+        } else
+        {
+            deferred.resolve(doc);
+        }
+    });
+    return deferred.promise.then((doc) =>
+    {
+        return doc;
+    });
+}
+
 describe('Task Logic Unit Tests', () =>
 {
     before((done) =>
@@ -186,7 +210,8 @@ describe('Task Logic Unit Tests', () =>
                 assert(taskInfoPlainObject.privacy === privacy);
                 assert(taskInfoPlainObject.taskGroup.id === taskGroupId);
                 return taskInfoPlainObject;
-            }).then((taskInfoPlainObject)=>{
+            }).then((taskInfoPlainObject) =>
+            {
                 return PromiseAdapter.convertMongooseQuery(TaskInfo.model.findByIdAndRemove(taskInfoPlainObject.id))
             })
         })
@@ -312,7 +337,8 @@ describe('Task Logic Unit Tests', () =>
                 assert(taskPlainObject.taskInfo.taskGroup.id === taskGroupId);
                 assert(taskPlainObject.taskInfo.taskGroup.name === groupName);
                 return taskPlainObject;
-            }).then((taskPlainObject)=>{
+            }).then((taskPlainObject) =>
+            {
                 return PromiseAdapter.convertMongooseQuery(Task.model.findByIdAndRemove(taskPlainObject.id))
             })
         })
@@ -345,7 +371,8 @@ describe('Task Logic Unit Tests', () =>
                 assert(taskPlainObject.taskInfo.taskGroup.id === taskGroupId);
                 assert(taskPlainObject.taskInfo.taskGroup.name === groupName);
                 return taskPlainObject;
-            }).then((taskPlainObject)=>{
+            }).then((taskPlainObject) =>
+            {
                 return Q.all([
                     PromiseAdapter.convertMongooseQuery(Task.model.findByIdAndRemove(taskPlainObject.id)),
                     PromiseAdapter.convertMongooseQuery(TaskInfo.model.findByIdAndRemove(taskPlainObject.taskInfo.id))
@@ -353,4 +380,172 @@ describe('Task Logic Unit Tests', () =>
             })
         })
     }) // createTask()
+    describe('updateTask()', () =>
+    {
+        var taskGroupId = '';
+        var taskInfoId = '';
+        var taskId = '';
+        beforeEach((done) =>
+        {
+            createTaskGroup().then((taskGroup) =>
+            {
+                taskGroupId = taskGroup.id;
+                return createTaskInfo(taskGroup);
+            }).then((taskInfo) =>
+            {
+                taskInfoId = taskInfo.id;
+                return createTask(taskInfo);
+            }).then((task) =>
+            {
+                taskId = task.id;
+                done();
+            }).fail((err) =>
+            {
+                done(err);
+            })
+        })
+        afterEach((done) =>
+        {
+            Q.all([
+                PromiseAdapter.convertMongooseQuery(TaskInfo.model.findByIdAndRemove(taskInfoId)),
+                PromiseAdapter.convertMongooseQuery(TaskGroup.model.findByIdAndRemove(taskGroupId)),
+                PromiseAdapter.convertMongooseQuery(Task.model.findByIdAndRemove(taskId))
+            ]).then(
+                () =>
+                {
+                    done();
+                }, (err) =>
+                {
+                    done(err);
+                })
+        })
+        it('Should fail when given null as an argument', (done) =>
+        {
+            TaskLogic.updateTask(null).then(
+                () =>
+                {
+                    done(new Error('Did not fail'));
+                }, (err) =>
+                {
+                    done();
+                })
+        })
+        it('Should not accept a plain object without id', (done) =>
+        {
+            TaskLogic.updateTask({
+                state: Task.TaskState.Incomplete,
+                taskInfo: {
+                    id: taskInfoId,
+                    title: 'Dummy Task',
+                    description: '',
+                    privacy: TaskInfo.TaskPrivacy.Private,
+                    taskGroup: {
+                        id: taskGroupId,
+                        name: 'Dummy Task Group'
+                    }
+                }
+            }).then(
+                () =>
+                {
+                    done(new Error('Did not fail'));
+                }, (err) =>
+                {
+                    done();
+                })
+        })
+        it('Should not accept a plain object with incorrect task info plain object', (done) =>
+        {
+            TaskLogic.updateTask({
+                id: taskId,
+                state: Task.TaskState.Incomplete,
+                taskInfo: {
+                    id: taskInfoId,
+                    title: 'Dummy Task blah blah', // <-- incorrect title
+                    description: '',
+                    privacy: TaskInfo.TaskPrivacy.Private,
+                    taskGroup: {
+                        id: taskGroupId,
+                        name: 'Dummy Task Group'
+                    }
+                }
+            }).then(
+                () =>
+                {
+                    done(new Error('Did not fail'));
+                }, (err) =>
+                {
+                    done();
+                })
+        })
+        it('Should successfully update a task with existing task info', () =>
+        {
+            const state = Task.TaskState.Complete;
+            const title = 'Dummy Task';
+            const description = '';
+            const privacy = TaskInfo.TaskPrivacy.Private;
+            const groupName = 'Dummy Task Group';
+            return TaskLogic.updateTask({
+                id: taskId,
+                state: state,
+                taskInfo: {
+                    id: taskInfoId,
+                    title: title,
+                    description: description,
+                    privacy: privacy,
+                    taskGroup: {
+                        id: taskGroupId,
+                        name: groupName
+                    }
+                }
+            }).then((taskPlainObject) =>
+            {
+                assert(taskPlainObject.id === taskId);
+                assert(taskPlainObject.state === state);
+                assert(taskPlainObject.taskInfo.id === taskInfoId);
+                assert(taskPlainObject.taskInfo.title === title);
+                assert(taskPlainObject.taskInfo.description === description);
+                assert(taskPlainObject.taskInfo.privacy === privacy);
+                assert(taskPlainObject.taskInfo.taskGroup.id === taskGroupId);
+                assert(taskPlainObject.taskInfo.taskGroup.name === groupName);
+                return taskPlainObject;
+            })
+        })
+        it('Should successfully update a task with a new task info', () =>
+        {
+            const state = Task.TaskState.Incomplete;
+            const title = 'Dummy Task 2';
+            const description = 'dasfklasdf';
+            const privacy = TaskInfo.TaskPrivacy.Public;
+            const groupName = 'Dummy Task Group';
+            return TaskLogic.updateTask({
+                id: taskId,
+                state: state,
+                taskInfo: {
+                    title: title,
+                    description: description,
+                    privacy: privacy,
+                    taskGroup: {
+                        id: taskGroupId,
+                        name: groupName
+                    }
+                }
+            }).then((taskPlainObject) =>
+            {
+                assert(taskPlainObject.id !== null && taskPlainObject.id !== undefined);
+                assert(taskPlainObject.state === state);
+                assert(taskPlainObject.taskInfo.id !== null && taskPlainObject.taskInfo.id !== undefined);
+                assert(taskPlainObject.taskInfo.title === title);
+                assert(taskPlainObject.taskInfo.description === description);
+                assert(taskPlainObject.taskInfo.privacy === privacy);
+                assert(taskPlainObject.taskInfo.taskGroup.id === taskGroupId);
+                assert(taskPlainObject.taskInfo.taskGroup.name === groupName);
+                return taskPlainObject;
+            }).then((taskPlainObject) =>
+            {
+                return Q.all([
+                    PromiseAdapter.convertMongooseQuery(TaskInfo.model.findByIdAndRemove(taskPlainObject.taskInfo.id))
+                ])
+            })
+        })
+    }) // updateTask()
 })

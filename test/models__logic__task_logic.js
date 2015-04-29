@@ -45,6 +45,25 @@ function createTaskInfo(taskGroup) {
         return doc;
     });
 }
+function createTask(taskInfo) {
+    var deferred = Q.defer();
+    var task = new Task.model({
+        _state: Task.TaskState.Incomplete,
+        _taskInfo: null
+    });
+    task.taskInfo = taskInfo;
+    task.save(function (err, doc) {
+        if (err) {
+            deferred.reject(err);
+        }
+        else {
+            deferred.resolve(doc);
+        }
+    });
+    return deferred.promise.then(function (doc) {
+        return doc;
+    });
+}
 describe('Task Logic Unit Tests', function () {
     before(function (done) {
         if (Models.connection.readyState === 1) {
@@ -280,6 +299,147 @@ describe('Task Logic Unit Tests', function () {
             }).then(function (taskPlainObject) {
                 return Q.all([
                     PromiseAdapter.convertMongooseQuery(Task.model.findByIdAndRemove(taskPlainObject.id)),
+                    PromiseAdapter.convertMongooseQuery(TaskInfo.model.findByIdAndRemove(taskPlainObject.taskInfo.id))
+                ]);
+            });
+        });
+    });
+    describe('updateTask()', function () {
+        var taskGroupId = '';
+        var taskInfoId = '';
+        var taskId = '';
+        beforeEach(function (done) {
+            createTaskGroup().then(function (taskGroup) {
+                taskGroupId = taskGroup.id;
+                return createTaskInfo(taskGroup);
+            }).then(function (taskInfo) {
+                taskInfoId = taskInfo.id;
+                return createTask(taskInfo);
+            }).then(function (task) {
+                taskId = task.id;
+                done();
+            }).fail(function (err) {
+                done(err);
+            });
+        });
+        afterEach(function (done) {
+            Q.all([
+                PromiseAdapter.convertMongooseQuery(TaskInfo.model.findByIdAndRemove(taskInfoId)),
+                PromiseAdapter.convertMongooseQuery(TaskGroup.model.findByIdAndRemove(taskGroupId)),
+                PromiseAdapter.convertMongooseQuery(Task.model.findByIdAndRemove(taskId))
+            ]).then(function () {
+                done();
+            }, function (err) {
+                done(err);
+            });
+        });
+        it('Should fail when given null as an argument', function (done) {
+            TaskLogic.updateTask(null).then(function () {
+                done(new Error('Did not fail'));
+            }, function (err) {
+                done();
+            });
+        });
+        it('Should not accept a plain object without id', function (done) {
+            TaskLogic.updateTask({
+                state: Task.TaskState.Incomplete,
+                taskInfo: {
+                    id: taskInfoId,
+                    title: 'Dummy Task',
+                    description: '',
+                    privacy: TaskInfo.TaskPrivacy.Private,
+                    taskGroup: {
+                        id: taskGroupId,
+                        name: 'Dummy Task Group'
+                    }
+                }
+            }).then(function () {
+                done(new Error('Did not fail'));
+            }, function (err) {
+                done();
+            });
+        });
+        it('Should not accept a plain object with incorrect task info plain object', function (done) {
+            TaskLogic.updateTask({
+                id: taskId,
+                state: Task.TaskState.Incomplete,
+                taskInfo: {
+                    id: taskInfoId,
+                    title: 'Dummy Task blah blah',
+                    description: '',
+                    privacy: TaskInfo.TaskPrivacy.Private,
+                    taskGroup: {
+                        id: taskGroupId,
+                        name: 'Dummy Task Group'
+                    }
+                }
+            }).then(function () {
+                done(new Error('Did not fail'));
+            }, function (err) {
+                done();
+            });
+        });
+        it('Should successfully update a task with existing task info', function () {
+            var state = Task.TaskState.Complete;
+            var title = 'Dummy Task';
+            var description = '';
+            var privacy = TaskInfo.TaskPrivacy.Private;
+            var groupName = 'Dummy Task Group';
+            return TaskLogic.updateTask({
+                id: taskId,
+                state: state,
+                taskInfo: {
+                    id: taskInfoId,
+                    title: title,
+                    description: description,
+                    privacy: privacy,
+                    taskGroup: {
+                        id: taskGroupId,
+                        name: groupName
+                    }
+                }
+            }).then(function (taskPlainObject) {
+                assert(taskPlainObject.id === taskId);
+                assert(taskPlainObject.state === state);
+                assert(taskPlainObject.taskInfo.id === taskInfoId);
+                assert(taskPlainObject.taskInfo.title === title);
+                assert(taskPlainObject.taskInfo.description === description);
+                assert(taskPlainObject.taskInfo.privacy === privacy);
+                assert(taskPlainObject.taskInfo.taskGroup.id === taskGroupId);
+                assert(taskPlainObject.taskInfo.taskGroup.name === groupName);
+                return taskPlainObject;
+            });
+        });
+        it('Should successfully update a task with a new task info', function () {
+            var state = Task.TaskState.Incomplete;
+            var title = 'Dummy Task 2';
+            var description = 'dasfklasdf';
+            var privacy = TaskInfo.TaskPrivacy.Public;
+            var groupName = 'Dummy Task Group';
+            return TaskLogic.updateTask({
+                id: taskId,
+                state: state,
+                taskInfo: {
+                    title: title,
+                    description: description,
+                    privacy: privacy,
+                    taskGroup: {
+                        id: taskGroupId,
+                        name: groupName
+                    }
+                }
+            }).then(function (taskPlainObject) {
+                assert(taskPlainObject.id !== null && taskPlainObject.id !== undefined);
+                assert(taskPlainObject.state === state);
+                assert(taskPlainObject.taskInfo.id !== null && taskPlainObject.taskInfo.id !== undefined);
+                assert(taskPlainObject.taskInfo.title === title);
+                assert(taskPlainObject.taskInfo.description === description);
+                assert(taskPlainObject.taskInfo.privacy === privacy);
+                assert(taskPlainObject.taskInfo.taskGroup.id === taskGroupId);
+                assert(taskPlainObject.taskInfo.taskGroup.name === groupName);
+                return taskPlainObject;
+            }).then(function (taskPlainObject) {
+                return Q.all([
                     PromiseAdapter.convertMongooseQuery(TaskInfo.model.findByIdAndRemove(taskPlainObject.taskInfo.id))
                 ]);
             });
