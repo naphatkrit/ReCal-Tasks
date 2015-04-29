@@ -30,6 +30,7 @@ module TaskLogic
                 _description: taskInfoPlainObject.description,
                 _privacy: taskInfoPlainObject.privacy,
                 _taskGroup: (<any>mongoose.Types.ObjectId)(taskInfoPlainObject.taskGroup.id),
+                _previousVersion: taskInfoPlainObject.previousVersionId ? (<any>mongoose.Types.ObjectId)(taskInfoPlainObject.previousVersionId) : undefined
             })
             return PromiseAdapter.convertMongooseDocumentSave(taskInfo);
         }).then((taskInfo) =>

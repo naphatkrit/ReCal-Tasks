@@ -26,7 +26,8 @@ var PlainObject;
                 title: taskInfo.title,
                 description: taskInfo.description,
                 privacy: taskInfo.privacy,
-                taskGroup: taskGroupPlainObject
+                taskGroup: taskGroupPlainObject,
+                previousVersionId: taskInfo.previousVersion ? taskInfo.previousVersion : undefined
             };
         });
     }

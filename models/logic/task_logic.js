@@ -23,6 +23,7 @@ var TaskLogic;
                 _description: taskInfoPlainObject.description,
                 _privacy: taskInfoPlainObject.privacy,
                 _taskGroup: mongoose.Types.ObjectId(taskInfoPlainObject.taskGroup.id),
+                _previousVersion: taskInfoPlainObject.previousVersionId ? mongoose.Types.ObjectId(taskInfoPlainObject.previousVersionId) : undefined
             });
             return PromiseAdapter.convertMongooseDocumentSave(taskInfo);
         }).then(function (taskInfo) {

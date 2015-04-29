@@ -41,7 +41,8 @@ module PlainObject
                 title: taskInfo.title,
                 description: taskInfo.description,
                 privacy: taskInfo.privacy,
-                taskGroup: taskGroupPlainObject
+                taskGroup: taskGroupPlainObject,
+                previousVersionId: taskInfo.previousVersion ? (<any> taskInfo.previousVersion) : undefined
             }
         })
     }
@@ -83,6 +84,7 @@ module PlainObject
             title: string,
             description: string,
             privacy: TaskInfo.TaskPrivacy,
+            previousVersionId?: string,
             taskGroup: TaskGroupPlainObject,
         }
         export interface TaskPlainObject
