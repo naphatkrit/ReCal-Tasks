@@ -82,6 +82,21 @@ module PlainObject
             }
         })
     }
+
+    export function validateTaskGroupPlainObject(object: any)
+    {
+        try
+        {
+            assert(object !== null && object !== undefined);
+            assert(typeof object.id === 'string');
+            assert(typeof object.name === 'string');
+            return true;
+        }
+        catch (e)
+        {
+            return false;
+        }
+    }
 }
 
 module PlainObject

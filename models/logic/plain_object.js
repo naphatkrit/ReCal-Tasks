@@ -59,5 +59,17 @@ var PlainObject;
         });
     }
     PlainObject.convertUserInstance = convertUserInstance;
+    function validateTaskGroupPlainObject(object) {
+        try {
+            assert(object !== null && object !== undefined);
+            assert(typeof object.id === 'string');
+            assert(typeof object.name === 'string');
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
+    }
+    PlainObject.validateTaskGroupPlainObject = validateTaskGroupPlainObject;
 })(PlainObject || (PlainObject = {}));
 module.exports = PlainObject;

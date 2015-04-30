@@ -83,103 +83,85 @@ function createUser() {
     });
 }
 describe('Models Logic - Plain Object Unit Tests', function () {
-    before(function (done) {
-        if (Models.connection.readyState === 1) {
-            done();
-            return;
-        }
-        Models.connection.once('error', function (error) {
-            done(error);
-        });
-        Models.connection.once('open', function () {
-            done();
-        });
-    });
-    describe('convertTaskGroupInstance()', function () {
-        var taskGroupId = '';
-        beforeEach(function (done) {
-            createTaskGroup().then(function (taskGroup) {
-                taskGroupId = taskGroup.id;
+    describe('Conversion Functions', function () {
+        before(function (done) {
+            if (Models.connection.readyState === 1) {
                 done();
-            }, function (err) {
-                done(err);
+                return;
+            }
+            Models.connection.once('error', function (error) {
+                done(error);
             });
-        });
-        afterEach(function (done) {
-            TaskGroup.model.findByIdAndRemove(taskGroupId, done);
-        });
-        it('Should fail when given null as an argument', function (done) {
-            PlainObject.convertTaskGroupInstance(null).then(function () {
-                done(new Error('Did not fail'));
-            }, function (err) {
+            Models.connection.once('open', function () {
                 done();
             });
         });
-        it('Should successfully create a plain object', function () {
-            return PromiseAdapter.convertMongooseQuery(TaskGroup.model.findById(taskGroupId))
-                .then(function (taskGroupInstance) {
-                return PlainObject.convertTaskGroupInstance(taskGroupInstance).then(function (plainObject) {
-                    assert(plainObject.id === taskGroupInstance.id);
-                    assert(plainObject.name === taskGroupInstance.name);
+        describe('convertTaskGroupInstance()', function () {
+            var taskGroupId = '';
+            beforeEach(function (done) {
+                createTaskGroup().then(function (taskGroup) {
+                    taskGroupId = taskGroup.id;
+                    done();
+                }, function (err) {
+                    done(err);
+                });
+            });
+            afterEach(function (done) {
+                TaskGroup.model.findByIdAndRemove(taskGroupId, done);
+            });
+            it('Should fail when given null as an argument', function (done) {
+                PlainObject.convertTaskGroupInstance(null).then(function () {
+                    done(new Error('Did not fail'));
+                }, function (err) {
+                    done();
+                });
+            });
+            it('Should successfully create a plain object', function () {
+                return PromiseAdapter.convertMongooseQuery(TaskGroup.model.findById(taskGroupId))
+                    .then(function (taskGroupInstance) {
+                    return PlainObject.convertTaskGroupInstance(taskGroupInstance).then(function (plainObject) {
+                        assert(plainObject.id === taskGroupInstance.id);
+                        assert(plainObject.name === taskGroupInstance.name);
+                    });
                 });
             });
         });
-    });
-    describe('convertTaskInfoInstance()', function () {
-        var taskGroupId = '';
-        var taskInfoId = '';
-        beforeEach(function (done) {
-            createTaskGroup().then(function (taskGroup) {
-                taskGroupId = taskGroup.id;
-                return createTaskInfo(taskGroup);
-            }).then(function (taskInfo) {
-                taskInfoId = taskInfo.id;
-                done();
-            }).fail(function (err) {
-                done(err);
-            });
-        });
-        afterEach(function (done) {
-            Q.all([
-                PromiseAdapter.convertMongooseQuery(TaskInfo.model.remove({ _id: taskInfoId })),
-                PromiseAdapter.convertMongooseQuery(TaskGroup.model.remove({ _id: taskGroupId }))
-            ]).then(function () {
-                done();
-            }, function (err) {
-                done(err);
-            });
-        });
-        it('Should fail when given null as an argument', function (done) {
-            PlainObject.convertTaskInfoInstance(null).then(function () {
-                done(new Error('Did not fail'));
-            }, function (err) {
-                done();
-            });
-        });
-        it('Should successfully create a plain object', function () {
-            return Q.all([
-                PromiseAdapter.convertMongooseQuery(TaskGroup.model.findById(taskGroupId)),
-                PromiseAdapter.convertMongooseQuery(TaskInfo.model.findById(taskInfoId))
-            ]).spread(function (taskGroup, taskInfo) {
-                return PlainObject.convertTaskInfoInstance(taskInfo).then(function (plainObject) {
-                    assert(plainObject.id === taskInfo.id);
-                    assert(plainObject.title === taskInfo.title);
-                    assert(plainObject.description === taskInfo.description);
-                    assert(plainObject.privacy === taskInfo.privacy);
-                    assert(plainObject.taskGroup.id === taskGroup.id);
-                    assert(plainObject.taskGroup.name === taskGroup.name);
+        describe('convertTaskInfoInstance()', function () {
+            var taskGroupId = '';
+            var taskInfoId = '';
+            beforeEach(function (done) {
+                createTaskGroup().then(function (taskGroup) {
+                    taskGroupId = taskGroup.id;
+                    return createTaskInfo(taskGroup);
+                }).then(function (taskInfo) {
+                    taskInfoId = taskInfo.id;
+                    done();
+                }).fail(function (err) {
+                    done(err);
                 });
             });
-        });
-        it('Should successfully create a plain object even if taskGroup property has already been populated', function () {
-            return Q.all([
-                PromiseAdapter.convertMongooseQuery(TaskGroup.model.findById(taskGroupId)),
-                PromiseAdapter.convertMongooseQuery(TaskInfo.model.findById(taskInfoId))
-            ]).spread(function (taskGroup, taskInfo) {
-                return taskInfo.populate('_taskGroup', function (err, taskInfo) {
-                    if (err) {
-                        throw err;
-                    }
+            afterEach(function (done) {
+                Q.all([
+                    PromiseAdapter.convertMongooseQuery(TaskInfo.model.remove({ _id: taskInfoId })),
+                    PromiseAdapter.convertMongooseQuery(TaskGroup.model.remove({ _id: taskGroupId }))
+                ]).then(function () {
+                    done();
+                }, function (err) {
+                    done(err);
+                });
+            });
+            it('Should fail when given null as an argument', function (done) {
+                PlainObject.convertTaskInfoInstance(null).then(function () {
+                    done(new Error('Did not fail'));
+                }, function (err) {
+                    done();
+                });
+            });
+            it('Should successfully create a plain object', function () {
+                return Q.all([
+                    PromiseAdapter.convertMongooseQuery(TaskGroup.model.findById(taskGroupId)),
+                    PromiseAdapter.convertMongooseQuery(TaskInfo.model.findById(taskInfoId))
+                ]).spread(function (taskGroup, taskInfo) {
                     return PlainObject.convertTaskInfoInstance(taskInfo).then(function (plainObject) {
                         assert(plainObject.id === taskInfo.id);
                         assert(plainObject.title === taskInfo.title);
@@ -190,72 +172,69 @@ describe('Models Logic - Plain Object Unit Tests', function () {
                     });
                 });
             });
-        });
-    });
-    describe('convertTaskInstance()', function () {
-        var taskGroupId = '';
-        var taskInfoId = '';
-        var taskId = '';
-        beforeEach(function (done) {
-            createTaskGroup().then(function (taskGroup) {
-                taskGroupId = taskGroup.id;
-                return createTaskInfo(taskGroup);
-            }).then(function (taskInfo) {
-                taskInfoId = taskInfo.id;
-                return createTask(taskInfo);
-            }).then(function (task) {
-                taskId = task.id;
-                done();
-            }).fail(function (err) {
-                done(err);
-            });
-        });
-        afterEach(function (done) {
-            Q.all([
-                PromiseAdapter.convertMongooseQuery(TaskGroup.model.findByIdAndRemove(taskGroupId)),
-                PromiseAdapter.convertMongooseQuery(TaskInfo.model.findByIdAndRemove(taskInfoId)),
-                PromiseAdapter.convertMongooseQuery(Task.model.findByIdAndRemove(taskId))
-            ]).then(function () {
-                done();
-            }, function (err) {
-                done(err);
-            });
-        });
-        it('Should fail when given null as an argument', function (done) {
-            PlainObject.convertTaskInstance(null).then(function () {
-                done(new Error('Did not fail'));
-            }, function (err) {
-                done();
-            });
-        });
-        it('Should successfully create a plain object', function () {
-            return Q.all([
-                PromiseAdapter.convertMongooseQuery(TaskGroup.model.findById(taskGroupId)),
-                PromiseAdapter.convertMongooseQuery(TaskInfo.model.findById(taskInfoId)),
-                PromiseAdapter.convertMongooseQuery(Task.model.findById(taskId))
-            ]).spread(function (taskGroup, taskInfo, task) {
-                return PlainObject.convertTaskInstance(task).then(function (plainObject) {
-                    assert(plainObject.id === task.id);
-                    assert(plainObject.state === task.state);
-                    assert(plainObject.taskInfo.id === taskInfo.id);
-                    assert(plainObject.taskInfo.title === taskInfo.title);
-                    assert(plainObject.taskInfo.description === taskInfo.description);
-                    assert(plainObject.taskInfo.privacy === taskInfo.privacy);
-                    assert(plainObject.taskInfo.taskGroup.id === taskGroup.id);
-                    assert(plainObject.taskInfo.taskGroup.name === taskGroup.name);
+            it('Should successfully create a plain object even if taskGroup property has already been populated', function () {
+                return Q.all([
+                    PromiseAdapter.convertMongooseQuery(TaskGroup.model.findById(taskGroupId)),
+                    PromiseAdapter.convertMongooseQuery(TaskInfo.model.findById(taskInfoId))
+                ]).spread(function (taskGroup, taskInfo) {
+                    return taskInfo.populate('_taskGroup', function (err, taskInfo) {
+                        if (err) {
+                            throw err;
+                        }
+                        return PlainObject.convertTaskInfoInstance(taskInfo).then(function (plainObject) {
+                            assert(plainObject.id === taskInfo.id);
+                            assert(plainObject.title === taskInfo.title);
+                            assert(plainObject.description === taskInfo.description);
+                            assert(plainObject.privacy === taskInfo.privacy);
+                            assert(plainObject.taskGroup.id === taskGroup.id);
+                            assert(plainObject.taskGroup.name === taskGroup.name);
+                        });
+                    });
                 });
             });
         });
-        it('Should successfully create a plain object even if taskInfo property has already been populated', function () {
-            return Q.all([
-                PromiseAdapter.convertMongooseQuery(TaskGroup.model.findById(taskGroupId)),
-                PromiseAdapter.convertMongooseQuery(TaskInfo.model.findById(taskInfoId)),
-                PromiseAdapter.convertMongooseQuery(Task.model.findById(taskId))
-            ]).spread(function (taskGroup, taskInfo, task) {
-                return task.populate('_taskInfo', function (err, task) {
-                    if (err) {
-                        throw err;
-                    }
+        describe('convertTaskInstance()', function () {
+            var taskGroupId = '';
+            var taskInfoId = '';
+            var taskId = '';
+            beforeEach(function (done) {
+                createTaskGroup().then(function (taskGroup) {
+                    taskGroupId = taskGroup.id;
+                    return createTaskInfo(taskGroup);
+                }).then(function (taskInfo) {
+                    taskInfoId = taskInfo.id;
+                    return createTask(taskInfo);
+                }).then(function (task) {
+                    taskId = task.id;
+                    done();
+                }).fail(function (err) {
+                    done(err);
+                });
+            });
+            afterEach(function (done) {
+                Q.all([
+                    PromiseAdapter.convertMongooseQuery(TaskGroup.model.findByIdAndRemove(taskGroupId)),
+                    PromiseAdapter.convertMongooseQuery(TaskInfo.model.findByIdAndRemove(taskInfoId)),
+                    PromiseAdapter.convertMongooseQuery(Task.model.findByIdAndRemove(taskId))
+                ]).then(function () {
+                    done();
+                }, function (err) {
+                    done(err);
+                });
+            });
+            it('Should fail when given null as an argument', function (done) {
+                PlainObject.convertTaskInstance(null).then(function () {
+                    done(new Error('Did not fail'));
+                }, function (err) {
+                    done();
+                });
+            });
+            it('Should successfully create a plain object', function () {
+                return Q.all([
+                    PromiseAdapter.convertMongooseQuery(TaskGroup.model.findById(taskGroupId)),
+                    PromiseAdapter.convertMongooseQuery(TaskInfo.model.findById(taskInfoId)),
+                    PromiseAdapter.convertMongooseQuery(Task.model.findById(taskId))
+                ]).spread(function (taskGroup, taskInfo, task) {
                     return PlainObject.convertTaskInstance(task).then(function (plainObject) {
                         assert(plainObject.id === task.id);
                         assert(plainObject.state === task.state);
@@ -268,35 +247,116 @@ describe('Models Logic - Plain Object Unit Tests', function () {
                     });
                 });
             });
+            it('Should successfully create a plain object even if taskInfo property has already been populated', function () {
+                return Q.all([
+                    PromiseAdapter.convertMongooseQuery(TaskGroup.model.findById(taskGroupId)),
+                    PromiseAdapter.convertMongooseQuery(TaskInfo.model.findById(taskInfoId)),
+                    PromiseAdapter.convertMongooseQuery(Task.model.findById(taskId))
+                ]).spread(function (taskGroup, taskInfo, task) {
+                    return task.populate('_taskInfo', function (err, task) {
+                        if (err) {
+                            throw err;
+                        }
+                        return PlainObject.convertTaskInstance(task).then(function (plainObject) {
+                            assert(plainObject.id === task.id);
+                            assert(plainObject.state === task.state);
+                            assert(plainObject.taskInfo.id === taskInfo.id);
+                            assert(plainObject.taskInfo.title === taskInfo.title);
+                            assert(plainObject.taskInfo.description === taskInfo.description);
+                            assert(plainObject.taskInfo.privacy === taskInfo.privacy);
+                            assert(plainObject.taskInfo.taskGroup.id === taskGroup.id);
+                            assert(plainObject.taskInfo.taskGroup.name === taskGroup.name);
+                        });
+                    });
+                });
+            });
+        });
+        describe('convertUserInstance()', function () {
+            var userId = '';
+            beforeEach(function (done) {
+                createUser().then(function (user) {
+                    userId = user.id;
+                    done();
+                }, function (err) {
+                    done(err);
+                });
+            });
+            afterEach(function (done) {
+                User.model.findByIdAndRemove(userId, done);
+            });
+            it('Should fail when given null as an argument', function (done) {
+                PlainObject.convertUserInstance(null).then(function () {
+                    done(new Error('Did not fail'));
+                }, function (err) {
+                    done();
+                });
+            });
+            it('Should successfully create a plain object', function () {
+                return PromiseAdapter.convertMongooseQuery(User.model.findById(userId))
+                    .then(function (user) {
+                    return PlainObject.convertUserInstance(user).then(function (plainObject) {
+                        assert(plainObject.id === user.id);
+                        assert(plainObject.username === user.username);
+                    });
+                });
+            });
         });
     });
-    describe('convertUserInstance()', function () {
-        var userId = '';
-        beforeEach(function (done) {
-            createUser().then(function (user) {
-                userId = user.id;
+    describe('Validation Functions', function () {
+        var badTaskGroups = [
+            {
+                value: undefined,
+                explanation: "undefined variable",
+            },
+            {
+                value: null,
+                explanation: "null variable",
+            },
+            {
+                value: {
+                    name: "name"
+                },
+                explanation: "id is missing",
+            },
+            {
+                value: {
+                    id: 0,
+                    name: "name"
+                },
+                explanation: "id is not a string",
+            },
+            {
+                value: {
+                    id: "123",
+                },
+                explanation: "name is missing",
+            },
+            {
+                value: {
+                    id: "123",
+                    name: true
+                },
+                explanation: "name is not a string",
+            },
+        ];
+        describe('validateTaskGroupPlainObject()', function () {
+            it('Should fail on bad Task Group plain objects', function (done) {
+                for (var i = 0; i < badTaskGroups.length; i++) {
+                    var bad = badTaskGroups[i];
+                    if (PlainObject.validateTaskGroupPlainObject(bad.value)) {
+                        done(new Error('Validation passes for a bad object: ' + bad.explanation));
+                        return;
+                    }
+                }
                 done();
-            }, function (err) {
-                done(err);
             });
-        });
-        afterEach(function (done) {
-            User.model.findByIdAndRemove(userId, done);
-        });
-        it('Should fail when given null as an argument', function (done) {
-            PlainObject.convertUserInstance(null).then(function () {
-                done(new Error('Did not fail'));
-            }, function (err) {
-                done();
-            });
-        });
-        it('Should successfully create a plain object', function () {
-            return PromiseAdapter.convertMongooseQuery(User.model.findById(userId))
-                .then(function (user) {
-                return PlainObject.convertUserInstance(user).then(function (plainObject) {
-                    assert(plainObject.id === user.id);
-                    assert(plainObject.username === user.username);
-                });
+            it('Should succeed on valid Task Group plain objects', function (done) {
+                if (!PlainObject.validateTaskGroupPlainObject({ id: '', name: '' })) {
+                    done(new Error('Validation fails on a valid object.'));
+                }
+                else {
+                    done();
+                }
             });
         });
     });
