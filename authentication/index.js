@@ -30,11 +30,18 @@ exports.session = function () {
         failureRedirect: '/login'
     });
 };
-function ensureAuthenticated(req, res, next) {
+function ensureAuthenticatedRedirect(req, res, next) {
     if (req.isAuthenticated()) {
         return next();
     }
     res.redirect('/login');
+}
+exports.ensureAuthenticatedRedirect = ensureAuthenticatedRedirect;
+function ensureAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next();
+    }
+    res.sendStatus(401);
 }
 exports.ensureAuthenticated = ensureAuthenticated;
 function loginPage() {

@@ -1,6 +1,9 @@
 var express = require('express');
+var ApiRequest = require('./api_request');
 var ApiResponse = require('./api_response');
+var PlainObject = require('../../models/logic/plain_object');
 var Query = require('../../models/logic/query');
+var TaskLogic = require('../../models/logic/task_logic');
 var router = express.Router();
 router.route('/')
     .get(function (req, res) {
@@ -11,7 +14,23 @@ router.route('/')
     });
 })
     .post(function (req, res) {
-    res.json({ message: "Post a new task" });
+    if (!ApiRequest.validateApiRequestSingleObject(req.body)) {
+        res.sendStatus(400);
+    }
+    var request = req.body;
+    var requestObject = ApiRequest.tryGetObject(request);
+    if (requestObject === null || requestObject === undefined) {
+        res.sendStatus(400);
+    }
+    if (!PlainObject.validateTaskPlainObject(requestObject)) {
+        res.sendStatus(400);
+    }
+    var task = requestObject;
+    TaskLogic.createTask(task).then(function (task) {
+        res.json(task);
+    }).fail(function () {
+        res.sendStatus(400);
+    });
 });
 router.route('/:task_id')
     .get(function (req, res) {

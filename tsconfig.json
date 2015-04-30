@@ -29,6 +29,7 @@
     ],
     "files": [
         "./api/index.ts",
+        "./api/v1/api_request.ts",
         "./api/v1/api_response.ts",
         "./api/v1/index.ts",
         "./api/v1/task.ts",

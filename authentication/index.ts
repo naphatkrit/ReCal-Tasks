@@ -51,10 +51,16 @@ export var session = function()
 //   the request is authenticated (typically via a persistent login session),
 //   the request will proceed.  Otherwise, the user will be redirected to the
 //   login page.
-export function ensureAuthenticated(req, res, next)
+export function ensureAuthenticatedRedirect(req, res, next)
 {
     if (req.isAuthenticated()) { return next(); }
     res.redirect('/login')
+}
+
+export function ensureAuthenticated(req, res, next)
+{
+    if (req.isAuthenticated()) { return next(); }
+    res.sendStatus(401)
 }
 
 export function loginPage()
