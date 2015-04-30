@@ -1,5 +1,6 @@
 var assert = require('assert');
 var Q = require('q');
+var TaskInfo = require('../task_info');
 var PromiseAdapter = require('../../lib/promise_adapter');
 var PlainObject;
 (function (PlainObject) {
@@ -71,5 +72,25 @@ var PlainObject;
         }
     }
     PlainObject.validateTaskGroupPlainObject = validateTaskGroupPlainObject;
+    function validateTaskInfoPlainObject(object) {
+        try {
+            assert(object !== null && object !== undefined);
+            if (object.id !== undefined) {
+                assert(typeof object.id === 'string');
+            }
+            assert(typeof object.title === 'string');
+            assert(typeof object.description === 'string');
+            assert(typeof TaskInfo.TaskPrivacy[object.privacy] === 'string');
+            if (object.previousVersionId !== undefined) {
+                assert(typeof object.previousVersionId === 'string');
+            }
+            assert(validateTaskGroupPlainObject(object.taskGroup));
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
+    }
+    PlainObject.validateTaskInfoPlainObject = validateTaskInfoPlainObject;
 })(PlainObject || (PlainObject = {}));
 module.exports = PlainObject;

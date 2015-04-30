@@ -437,6 +437,115 @@ describe('Models Logic - Plain Object Unit Tests', () =>
                 explanation: "name is not a string",
             },
         ]
+        const goodTaskGroup = { id: '', name: '' };
+        const badTaskInfos = [
+            {
+                value: undefined,
+                explanation: "undefined variable",
+            },
+            {
+                value: null,
+                explanation: "null variable",
+            },
+            {
+                value: {
+                    id: 0,
+                    title: '',
+                    description: '',
+                    privacy: TaskInfo.TaskPrivacy.Private,
+                    taskGroup: goodTaskGroup,
+                },
+                explanation: "id is not a string",
+            },
+            {
+                value: {
+                    id: '',
+                    description: '',
+                    privacy: TaskInfo.TaskPrivacy.Private,
+                    taskGroup: goodTaskGroup,
+                },
+                explanation: "title is missing",
+            },
+            {
+                value: {
+                    id: '',
+                    title: true,
+                    description: '',
+                    privacy: TaskInfo.TaskPrivacy.Private,
+                    taskGroup: goodTaskGroup,
+                },
+                explanation: "title is not a string",
+            },
+            {
+                value: {
+                    id: '',
+                    title: '',
+                    privacy: TaskInfo.TaskPrivacy.Private,
+                    taskGroup: goodTaskGroup,
+                },
+                explanation: "description is missing"
+            },
+            {
+                value: {
+                    id: '',
+                    title: '',
+                    description: -1,
+                    privacy: TaskInfo.TaskPrivacy.Private,
+                    taskGroup: goodTaskGroup,
+                },
+                explanation: "description is not a string"
+            },
+            {
+                value: {
+                    id: '',
+                    title: '',
+                    description: '',
+                    taskGroup: goodTaskGroup,
+                },
+                explanation: "privacy is missing"
+            },
+            {
+                value: {
+                    id: '',
+                    title: '',
+                    description: '',
+                    privacy: 50,
+                    taskGroup: goodTaskGroup,
+                },
+                explanation: "privacy is not a valid enum"
+            },
+        ]
+        const goodTaskInfos = [
+            {
+                value: {
+                    id: '123',
+                    title: '',
+                    description: '',
+                    privacy: TaskInfo.TaskPrivacy.Private,
+                    taskGroup: goodTaskGroup,
+                },
+                explanation: "with id"
+            },
+            {
+                value: {
+                    title: '',
+                    description: '',
+                    privacy: TaskInfo.TaskPrivacy.Private,
+                    taskGroup: goodTaskGroup,
+                },
+                explanation: "without id"
+            },
+            {
+                value: {
+                    title: '123',
+                    description: '',
+                    privacy: TaskInfo.TaskPrivacy.Private,
+                    previousVersionId: '123',
+                    taskGroup: goodTaskGroup,
+                },
+                explanation: "with previous version id"
+            },
+        ]
         describe('validateTaskGroupPlainObject()', () =>
         {
             it('Should fail on bad Task Group plain objects', (done) =>
@@ -454,7 +563,7 @@ describe('Models Logic - Plain Object Unit Tests', () =>
             })
             it('Should succeed on valid Task Group plain objects', (done) =>
             {
-                if (!PlainObject.validateTaskGroupPlainObject({ id: '', name: '' }))
+                if (!PlainObject.validateTaskGroupPlainObject(goodTaskGroup))
                 {
                     done(new Error('Validation fails on a valid object.'));
                 } else
@@ -462,6 +571,51 @@ describe('Models Logic - Plain Object Unit Tests', () =>
                     done();
                 }
             })
-        })
+        }) // validateTaskGroupPlainObject()
+        describe('validateTaskInfoPlainObject()', () =>
+        {
+            it('Should fail on bad Task Info plain objects', (done) =>
+            {
+                for (let i = 0; i < badTaskInfos.length; i++)
+                {
+                    const bad = badTaskInfos[i];
+                    if (PlainObject.validateTaskInfoPlainObject(bad.value))
+                    {
+                        done(new Error('Validation passes for a bad object: ' + bad.explanation));
+                        return;
+                    }
+                }
+                done();
+            })
+            it('Should fail on valid Task Info plain objects with invalid Task Group plain objects', (done) =>
+            {
+                for (let i = 0; i < goodTaskInfos.length; i++)
+                {
+                    const good = JSON.parse(JSON.stringify(goodTaskInfos[i]));
+                    for (let i = 0; i < badTaskGroups.length; i++) {
+                        good.value.taskGroup = <any> badTaskGroups[i].value;
+                        if (PlainObject.validateTaskInfoPlainObject(good.value))
+                        {
+                            done(new Error('Validation passes for a bad object: ' + badTaskGroups[i].explanation));
+                            return;
+                        }
+                    }
+                }
+                done();
+            })
+            it('Should succeed on valid Task Info plain objects', (done) =>
+            {
+                for (let i = 0; i < goodTaskInfos.length; i++)
+                {
+                    const good = goodTaskInfos[i];
+                    if (!PlainObject.validateTaskInfoPlainObject(good.value))
+                    {
+                        done(new Error('Validation fails for a valid object: ' + good.explanation));
+                        return;
+                    }
+                }
+                done();
+            })
+        }); // validateTaskInfoPlainObject()
     })
 })
