@@ -1,5 +1,6 @@
 var assert = require('assert');
 var Q = require('q');
+var Task = require('../task');
 var TaskInfo = require('../task_info');
 var PromiseAdapter = require('../../lib/promise_adapter');
 var PlainObject;
@@ -92,5 +93,20 @@ var PlainObject;
         }
     }
     PlainObject.validateTaskInfoPlainObject = validateTaskInfoPlainObject;
+    function validateTaskPlainObject(object) {
+        try {
+            assert(object !== null && object !== undefined);
+            if (object.id !== undefined) {
+                assert(typeof object.id === 'string');
+            }
+            assert(typeof Task.TaskState[object.state] === 'string');
+            assert(validateTaskInfoPlainObject(object.taskInfo));
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
+    }
+    PlainObject.validateTaskPlainObject = validateTaskPlainObject;
 })(PlainObject || (PlainObject = {}));
 module.exports = PlainObject;

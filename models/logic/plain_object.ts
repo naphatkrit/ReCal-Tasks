@@ -102,16 +102,36 @@ module PlainObject
         try
         {
             assert(object !== null && object !== undefined);
-            if (object.id !== undefined) {
+            if (object.id !== undefined)
+            {
                 assert(typeof object.id === 'string');
             }
             assert(typeof object.title === 'string');
             assert(typeof object.description === 'string');
             assert(typeof TaskInfo.TaskPrivacy[object.privacy] === 'string');
-            if (object.previousVersionId !== undefined) {
+            if (object.previousVersionId !== undefined)
+            {
                 assert(typeof object.previousVersionId === 'string');
             }
             assert(validateTaskGroupPlainObject(object.taskGroup));
+            return true;
+        }
+        catch (e)
+        {
+            return false;
+        }
+    }
+    export function validateTaskPlainObject(object: any): boolean
+    {
+        try
+        {
+            assert(object !== null && object !== undefined);
+            if (object.id !== undefined)
+            {
+                assert(typeof object.id === 'string');
+            }
+            assert(typeof Task.TaskState[object.state] === 'string');
+            assert(validateTaskInfoPlainObject(object.taskInfo));
             return true;
         }
         catch (e)

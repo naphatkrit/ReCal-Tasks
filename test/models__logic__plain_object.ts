@@ -546,6 +546,64 @@ describe('Models Logic - Plain Object Unit Tests', () =>
                 explanation: "with previous version id"
             },
         ]
+        const badTasks = [
+            {
+                value: undefined,
+                explanation: "undefined variable",
+            },
+            {
+                value: null,
+                explanation: "null variable",
+            },
+            {
+                value: {
+                    id: 1,
+                    state: Task.TaskState.Incomplete,
+                    taskInfo: goodTaskInfos[0].value,
+                },
+                explanation: "id is not a string"
+            },
+            {
+                value: {
+                    id: '123',
+                    taskInfo: goodTaskInfos[0].value,
+                },
+                explanation: "state is missing",
+            },
+            {
+                value: {
+                    id: '123',
+                    state: -1,
+                    taskInfo: goodTaskInfos[0].value,
+                },
+                explanation: "state is not a valid enum"
+            },
+            {
+                value: {
+                    id: 1,
+                    state: '1234',
+                    taskInfo: goodTaskInfos[0].value,
+                },
+                explanation: "state is a string"
+            },
+        ]
+        const goodTasks = [
+            {
+                value: {
+                    state: Task.TaskState.Incomplete,
+                    taskInfo: goodTaskInfos[0].value,
+                },
+                explanation: "without id"
+            },
+            {
+                value: {
+                    id: '123',
+                    state: Task.TaskState.Incomplete,
+                    taskInfo: goodTaskInfos[0].value,
+                },
+                explanation: "with id"
+            },
+        ]
         describe('validateTaskGroupPlainObject()', () =>
         {
             it('Should fail on bad Task Group plain objects', (done) =>
@@ -592,7 +650,8 @@ describe('Models Logic - Plain Object Unit Tests', () =>
                 for (let i = 0; i < goodTaskInfos.length; i++)
                 {
                     const good = JSON.parse(JSON.stringify(goodTaskInfos[i]));
-                    for (let i = 0; i < badTaskGroups.length; i++) {
+                    for (let i = 0; i < badTaskGroups.length; i++)
+                    {
                         good.value.taskGroup = <any> badTaskGroups[i].value;
                         if (PlainObject.validateTaskInfoPlainObject(good.value))
                         {
@@ -617,5 +676,72 @@ describe('Models Logic - Plain Object Unit Tests', () =>
                 done();
             })
         }); // validateTaskInfoPlainObject()
+        describe('validateTaskPlainObject()', () =>
+        {
+            it('Should fail on bad Task plain objects', (done) =>
+            {
+                for (let i = 0; i < badTasks.length; i++)
+                {
+                    const bad = badTasks[i];
+                    if (PlainObject.validateTaskPlainObject(bad.value))
+                    {
+                        done(new Error('Validation passes for a bad object: ' + bad.explanation));
+                        return;
+                    }
+                }
+                done();
+            })
+            it('Should fail on valid Task plain objects with invalid Task Info plain objects', (done) =>
+            {
+                for (let i = 0; i < goodTasks.length; i++)
+                {
+                    const good = JSON.parse(JSON.stringify(goodTasks[i]));
+                    for (let i = 0; i < badTaskInfos.length; i++)
+                    {
+                        good.value.taskInfo = <any> badTaskInfos[i].value;
+                        if (PlainObject.validateTaskPlainObject(good.value))
+                        {
+                            done(new Error('Validation passes for a bad object: ' + badTaskInfos[i].explanation));
+                            return;
+                        }
+                    }
+                }
+                done();
+            })
+            it('Should fail on valid Task plain objects with invalid Task Group plain objects', (done) =>
+            {
+                for (let i = 0; i < goodTasks.length; i++)
+                {
+                    const good = JSON.parse(JSON.stringify(goodTasks[i]));
+                    for (let i = 0; i < goodTaskInfos.length; i++)
+                    {
+                        good.value.taskInfo = <any> JSON.parse(JSON.stringify(goodTaskInfos[i]));
+                        for (let i = 0; i < badTaskGroups.length; i++)
+                        {
+                            good.value.taskInfo.taskGroup = badTaskGroups[i];
+                            if (PlainObject.validateTaskPlainObject(good.value))
+                            {
+                                done(new Error('Validation passes for a bad object: ' + badTaskGroups[i].explanation));
+                                return;
+                            }
+                        }
+                    }
+                }
+                done();
+            })
+            it('Should succeed on valid Task plain objects', (done) =>
+            {
+                for (let i = 0; i < goodTasks.length; i++)
+                {
+                    const good = goodTasks[i];
+                    if (!PlainObject.validateTaskPlainObject(good.value))
+                    {
+                        done(new Error('Validation fails for a valid object: ' + good.explanation));
+                        return;
+                    }
+                }
+                done();
+            })
+        }); // validateTaskPlainObject()
     })
 })
