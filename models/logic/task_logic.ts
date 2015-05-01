@@ -21,7 +21,8 @@ module TaskLogic
         {
             return PromiseAdapter.convertMongooseQuery(TaskGroup.model.count({
                 _id: (<any>mongoose.Types.ObjectId)(taskInfoPlainObject.taskGroup.id),
-                _name: taskInfoPlainObject.taskGroup.name
+                _name: taskInfoPlainObject.taskGroup.name,
+                _identifier: taskInfoPlainObject.taskGroup.identifier,
             })).then((count) => { assert(count > 0, "Task Group Plain Object must correspond to a valid Task Group instance.") })
         }).then(() =>
         {

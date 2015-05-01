@@ -14,7 +14,8 @@ function createTaskGroup(): Q.Promise<TaskGroup.Instance>
 {
     let deferred = Q.defer<TaskGroup.Instance>();
     let taskGroup = new TaskGroup.model({
-        _name: "Dummy Task Group"
+        _name: "Dummy Task Group",
+        _identifier: "cos333"
     });
     taskGroup.save<TaskGroup.Instance>((err, doc) =>
     {
@@ -139,7 +140,8 @@ describe('Task Logic Unit Tests', () =>
                 privacy: TaskInfo.TaskPrivacy.Private,
                 taskGroup: {
                     id: '123456789123',
-                    name: 'Dummy Task Group'
+                    name: 'Dummy Task Group',
+                    identifier: "cos333"
                 }
             }).then(
                 () =>
@@ -158,7 +160,28 @@ describe('Task Logic Unit Tests', () =>
                 privacy: TaskInfo.TaskPrivacy.Private,
                 taskGroup: {
                     id: taskGroupId,
-                    name: 'Dummy Task '
+                    name: 'Dummy Task ',
+                    identifier: "cos333",
+                }
+            }).then(
+                () =>
+                {
+                    done(new Error('Did not fail'));
+                }, (err) =>
+                {
+                    done();
+                })
+        })
+        it('Should not accept a plain object with errorneous Task Group identifier', (done) =>
+        {
+            TaskLogic.createTaskInfo({
+                title: 'title',
+                description: '',
+                privacy: TaskInfo.TaskPrivacy.Private,
+                taskGroup: {
+                    id: taskGroupId,
+                    name: 'Dummy Task ',
+                    identifier: "cos334",
                 }
             }).then(
                 () =>
@@ -178,7 +201,8 @@ describe('Task Logic Unit Tests', () =>
                 privacy: TaskInfo.TaskPrivacy.Private,
                 taskGroup: {
                     id: taskGroupId,
-                    name: 'Dummy Task Group'
+                    name: 'Dummy Task Group',
+                    identifier: "cos333"
                 }
             }).then(
                 () =>
@@ -200,7 +224,8 @@ describe('Task Logic Unit Tests', () =>
                 privacy: privacy,
                 taskGroup: {
                     id: taskGroupId,
-                    name: 'Dummy Task Group'
+                    name: 'Dummy Task Group',
+                    identifier: "cos333"
                 }
             }).then((taskInfoPlainObject) =>
             {
@@ -272,7 +297,8 @@ describe('Task Logic Unit Tests', () =>
                     privacy: TaskInfo.TaskPrivacy.Private,
                     taskGroup: {
                         id: taskGroupId,
-                        name: 'Dummy Task Group'
+                        name: 'Dummy Task Group',
+                        identifier: "cos333",
                     }
                 }
             }).then(
@@ -295,7 +321,8 @@ describe('Task Logic Unit Tests', () =>
                     privacy: TaskInfo.TaskPrivacy.Private,
                     taskGroup: {
                         id: taskGroupId,
-                        name: 'Dummy Task Group'
+                        name: 'Dummy Task Group',
+                        identifier: "cos333",
                     }
                 }
             }).then(
@@ -323,7 +350,8 @@ describe('Task Logic Unit Tests', () =>
                     privacy: privacy,
                     taskGroup: {
                         id: taskGroupId,
-                        name: groupName
+                        name: groupName,
+                        identifier: "cos333",
                     }
                 }
             }).then((taskPlainObject) =>
@@ -357,7 +385,8 @@ describe('Task Logic Unit Tests', () =>
                     privacy: privacy,
                     taskGroup: {
                         id: taskGroupId,
-                        name: groupName
+                        name: groupName,
+                        identifier: "cos333",
                     }
                 }
             }).then((taskPlainObject) =>
@@ -441,7 +470,8 @@ describe('Task Logic Unit Tests', () =>
                     privacy: TaskInfo.TaskPrivacy.Private,
                     taskGroup: {
                         id: taskGroupId,
-                        name: 'Dummy Task Group'
+                        name: 'Dummy Task Group',
+                        identifier: "cos333",
                     }
                 }
             }).then(
@@ -465,7 +495,8 @@ describe('Task Logic Unit Tests', () =>
                     privacy: TaskInfo.TaskPrivacy.Private,
                     taskGroup: {
                         id: taskGroupId,
-                        name: 'Dummy Task Group'
+                        name: 'Dummy Task Group',
+                        identifier: "cos333",
                     }
                 }
             }).then(
@@ -494,7 +525,8 @@ describe('Task Logic Unit Tests', () =>
                     privacy: privacy,
                     taskGroup: {
                         id: taskGroupId,
-                        name: groupName
+                        name: groupName,
+                        identifier: "cos333",
                     }
                 }
             }).then((taskPlainObject) =>
@@ -526,7 +558,8 @@ describe('Task Logic Unit Tests', () =>
                     privacy: privacy,
                     taskGroup: {
                         id: taskGroupId,
-                        name: groupName
+                        name: groupName,
+                        identifier: "cos333"
                     }
                 }
             }).then((taskPlainObject) =>

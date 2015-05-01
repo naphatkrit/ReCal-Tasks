@@ -26,7 +26,10 @@ module TaskInfo
         _taskGroup: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'TaskGroup',
-            required: true
+            required: true,
+            index: {
+                unique: false,
+            }
         }
     })
 

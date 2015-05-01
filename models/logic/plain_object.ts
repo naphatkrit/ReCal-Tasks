@@ -18,7 +18,8 @@ module PlainObject
             assert(taskGroup !== null && taskGroup !== undefined);
             return {
                 id: taskGroup.id,
-                name: taskGroup.name
+                name: taskGroup.name,
+                identifier: taskGroup.identifier
             }
         })
     }
@@ -165,7 +166,8 @@ module PlainObject
         export interface TaskGroupPlainObject
         {
             id: string,
-            name: string
+            name: string,
+            identifier: string,
         }
         export interface TaskInfoPlainObject
         {

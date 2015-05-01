@@ -15,7 +15,8 @@ var TaskLogic;
         }).then(function () {
             return PromiseAdapter.convertMongooseQuery(TaskGroup.model.count({
                 _id: mongoose.Types.ObjectId(taskInfoPlainObject.taskGroup.id),
-                _name: taskInfoPlainObject.taskGroup.name
+                _name: taskInfoPlainObject.taskGroup.name,
+                _identifier: taskInfoPlainObject.taskGroup.identifier,
             })).then(function (count) { assert(count > 0, "Task Group Plain Object must correspond to a valid Task Group instance."); });
         }).then(function () {
             var taskInfo = new TaskInfo.model({

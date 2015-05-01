@@ -11,7 +11,8 @@ var UserLogic = require('../models/logic/user_logic');
 function createTaskGroup() {
     var deferred = Q.defer();
     var taskGroup = new TaskGroup.model({
-        _name: "Dummy Task Group"
+        _name: "Dummy Task Group",
+        _identifier: "cos333"
     });
     taskGroup.save(function (err, doc) {
         if (err) {

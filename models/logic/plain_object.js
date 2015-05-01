@@ -10,7 +10,8 @@ var PlainObject;
             assert(taskGroup !== null && taskGroup !== undefined);
             return {
                 id: taskGroup.id,
-                name: taskGroup.name
+                name: taskGroup.name,
+                identifier: taskGroup.identifier
             };
         });
     }

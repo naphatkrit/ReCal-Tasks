@@ -16,6 +16,9 @@ module User
         _username: {
             type: String,
             required: true,
+            index: {
+                unique: true
+            }
         },
         _taskGroups: [{
             type: mongoose.Schema.Types.ObjectId,

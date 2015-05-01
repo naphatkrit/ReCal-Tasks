@@ -10,7 +10,8 @@ var PlainObject = require('../models/logic/plain_object');
 function createTaskGroup() {
     var deferred = Q.defer();
     var taskGroup = new TaskGroup.model({
-        _name: "Dummy Task Group"
+        _name: "Dummy Task Group",
+        _identifier: "cos333"
     });
     taskGroup.save(function (err, doc) {
         if (err) {
@@ -122,6 +123,7 @@ describe('Models Logic - Plain Object Unit Tests', function () {
                     return PlainObject.convertTaskGroupInstance(taskGroupInstance).then(function (plainObject) {
                         assert(plainObject.id === taskGroupInstance.id);
                         assert(plainObject.name === taskGroupInstance.name);
+                        assert(plainObject.identifier === taskGroupInstance.identifier);
                     });
                 });
             });

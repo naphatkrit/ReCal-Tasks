@@ -14,7 +14,8 @@ function createTaskGroup(): Q.Promise<TaskGroup.Instance>
 {
     let deferred = Q.defer<TaskGroup.Instance>();
     let taskGroup = new TaskGroup.model({
-        _name: "Dummy Task Group"
+        _name: "Dummy Task Group",
+        _identifier: "cos333"
     });
     taskGroup.save<TaskGroup.Instance>((err, doc) =>
     {
@@ -162,6 +163,7 @@ describe('Models Logic - Plain Object Unit Tests', () =>
                     {
                         assert(plainObject.id === taskGroupInstance.id)
                         assert(plainObject.name === taskGroupInstance.name)
+                        assert(plainObject.identifier === taskGroupInstance.identifier)
                     })
                 })
             });
