@@ -394,6 +394,7 @@ describe('Models Logic - Plain Object Unit Tests', () =>
                     {
                         assert(plainObject.id === user.id)
                         assert(plainObject.username === user.username)
+                        assert(plainObject.taskGroups.length == 0)
                     })
                 })
             });

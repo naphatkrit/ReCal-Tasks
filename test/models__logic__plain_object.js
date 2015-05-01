@@ -297,6 +297,7 @@ describe('Models Logic - Plain Object Unit Tests', function () {
                     return PlainObject.convertUserInstance(user).then(function (plainObject) {
                         assert(plainObject.id === user.id);
                         assert(plainObject.username === user.username);
+                        assert(plainObject.taskGroups.length == 0);
                     });
                 });
             });

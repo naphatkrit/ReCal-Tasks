@@ -76,9 +76,14 @@ module PlainObject
             assert(user !== null && user !== undefined);
         }).then(() =>
         {
+            return PromiseAdapter.convertMongooseDocumentPopulate(user, "_taskGroups");
+        }).then((user)=> {
+            return Q.all(user.taskGroups.map(convertTaskGroupInstance));
+        }).then((taskGroups)=>{
             return {
                 id: user.id,
-                username: user.username
+                username: user.username,
+                taskGroups: taskGroups
             }
         })
     }
@@ -181,6 +186,7 @@ module PlainObject
         {
             id: string,
             username: string,
+            taskGroups: TaskGroupPlainObject[]
         }
     }
 }

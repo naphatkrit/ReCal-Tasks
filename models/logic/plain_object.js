@@ -54,9 +54,14 @@ var PlainObject;
         return Q.fcall(function () {
             assert(user !== null && user !== undefined);
         }).then(function () {
+            return PromiseAdapter.convertMongooseDocumentPopulate(user, "_taskGroups");
+        }).then(function (user) {
+            return Q.all(user.taskGroups.map(convertTaskGroupInstance));
+        }).then(function (taskGroups) {
             return {
                 id: user.id,
-                username: user.username
+                username: user.username,
+                taskGroups: taskGroups
             };
         });
     }
