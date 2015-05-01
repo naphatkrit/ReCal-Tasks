@@ -33,6 +33,7 @@
         "./api/v1/api_response.ts",
         "./api/v1/index.ts",
         "./api/v1/task.ts",
+        "./api/v1/user.ts",
         "./app.ts",
         "./authentication/index.ts",
         "./lib/Invariants.ts",
