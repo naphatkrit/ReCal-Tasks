@@ -7,6 +7,7 @@ import PromiseAdapter = require('../../lib/promise_adapter');
 import PlainObject = require('../../models/logic/plain_object');
 import Query = require('../../models/logic/query');
 import TaskLogic = require('../../models/logic/task_logic');
+import UserLogic = require('../../models/logic/user_logic');
 
 const router = express.Router();
 
@@ -24,25 +25,36 @@ router.route('/')
 })
     .post((req: express.Request, res: express.Response) =>
 {
-    if (!ApiRequest.validateApiRequestSingleObject(req.body)) {
+    if (!ApiRequest.validateApiRequestSingleObject(req.body))
+    {
         // bad request
         res.sendStatus(400);
     }
     const request = <ApiRequest.ApiRequestSingleObject> req.body;
     const requestObject = ApiRequest.tryGetObject(request);
-    if (requestObject === null || requestObject === undefined) {
+    if (requestObject === null || requestObject === undefined)
+    {
         // not a JSON string
         res.sendStatus(400);
     }
-    if (!PlainObject.validateTaskPlainObject(requestObject)) {
+    if (!PlainObject.validateTaskPlainObject(requestObject))
+    {
         // not a valid task
         res.sendStatus(400);
     }
     const task = <PlainObject.Interfaces.TaskPlainObject> requestObject;
-    TaskLogic.createTask(task).then((task)=>{
-        // TODO add task to user
-        res.json(task);
-    }).fail(()=>{
+    TaskLogic.createTask(task).then((task) =>
+    {
+        // add task to user
+        return Query.getUser(req.user.id).then((user) =>
+        {
+            return UserLogic.addTask(user, task)
+        }).then(() =>
+        {
+            res.json(ApiResponse.createResponse([task]))
+        })
+    }).fail(() =>
+    {
         res.sendStatus(400);
     })
 })

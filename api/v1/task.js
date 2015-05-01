@@ -4,6 +4,7 @@ var ApiResponse = require('./api_response');
 var PlainObject = require('../../models/logic/plain_object');
 var Query = require('../../models/logic/query');
 var TaskLogic = require('../../models/logic/task_logic');
+var UserLogic = require('../../models/logic/user_logic');
 var router = express.Router();
 router.route('/')
     .get(function (req, res) {
@@ -27,7 +28,11 @@ router.route('/')
     }
     var task = requestObject;
     TaskLogic.createTask(task).then(function (task) {
-        res.json(task);
+        return Query.getUser(req.user.id).then(function (user) {
+            return UserLogic.addTask(user, task);
+        }).then(function () {
+            res.json(ApiResponse.createResponse([task]));
+        });
     }).fail(function () {
         res.sendStatus(400);
     });
