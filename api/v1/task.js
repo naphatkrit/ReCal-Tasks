@@ -1,4 +1,11 @@
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 var express = require('express');
+var Q = require('q');
 var ApiRequest = require('./api_request');
 var ApiResponse = require('./api_response');
 var PlainObject = require('../../models/logic/plain_object');
@@ -6,6 +13,19 @@ var Query = require('../../models/logic/query');
 var TaskLogic = require('../../models/logic/task_logic');
 var UserLogic = require('../../models/logic/user_logic');
 var router = express.Router();
+var HttpError = (function (_super) {
+    __extends(HttpError, _super);
+    function HttpError(code) {
+        _super.call(this, "HTTP Error");
+        this.code = code;
+        this.name = 'HTTP Error';
+        this.stack = (new Error()).stack;
+    }
+    HttpError.prototype.toString = function () {
+        return this.name + ': ' + this.code;
+    };
+    return HttpError;
+})(Error);
 router.route('/')
     .get(function (req, res) {
     Query.getTasksForUser(req.user.userId).done(function (tasks) {
@@ -15,7 +35,7 @@ router.route('/')
     });
 })
     .post(function (req, res) {
-    if (!ApiRequest.validateApiRequestSingleObject(req.body)) {
+    if (!ApiRequest.validateApiRequest(req.body)) {
         res.sendStatus(400);
     }
     var request = req.body;
@@ -58,7 +78,33 @@ router.route('/:task_id')
     });
 })
     .put(function (req, res) {
-    res.json({ message: "Update task with id " + req.params.task_id });
+    Q.fcall(function () {
+        var request = ApiRequest.castApiRequest(req.body);
+        if (!request) {
+            throw new HttpError(400);
+        }
+        return request;
+    }).then(function (request) {
+        var requestObject = ApiRequest.tryGetObject(request);
+        if (!requestObject) {
+            throw new HttpError(400);
+        }
+        return requestObject;
+    }).then(function (requestObject) {
+        var task = PlainObject.castTaskPlainObject(requestObject);
+        if (!task) {
+            throw new HttpError(400);
+        }
+        return task;
+    }).then(TaskLogic.updateTask).then(function (task) {
+        res.json(ApiResponse.createResponse([task]));
+    }).fail(function (error) {
+        var code = 400;
+        if (typeof error.code === 'number') {
+            code = error.code;
+        }
+        res.sendStatus(code);
+    });
 })
     .delete(function (req, res) {
     res.json({ message: "delete task with id " + req.params.task_id });

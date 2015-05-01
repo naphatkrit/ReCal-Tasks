@@ -108,5 +108,14 @@ var PlainObject;
         }
     }
     PlainObject.validateTaskPlainObject = validateTaskPlainObject;
+    function castTaskPlainObject(object) {
+        if (validateTaskPlainObject(object)) {
+            return object;
+        }
+        else {
+            return null;
+        }
+    }
+    PlainObject.castTaskPlainObject = castTaskPlainObject;
 })(PlainObject || (PlainObject = {}));
 module.exports = PlainObject;

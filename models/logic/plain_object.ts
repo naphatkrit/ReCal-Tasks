@@ -139,6 +139,18 @@ module PlainObject
             return false;
         }
     }
+
+    export function castTaskPlainObject(object: any): Interfaces.TaskPlainObject
+    {
+        if (validateTaskPlainObject(object))
+        {
+            return object;
+        }
+        else
+        {
+            return null;
+        }
+    }
 }
 
 module PlainObject

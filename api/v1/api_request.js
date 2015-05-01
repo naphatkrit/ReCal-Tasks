@@ -1,5 +1,5 @@
 var assert = require('assert');
-function validateApiRequestSingleObject(object) {
+function validateApiRequest(object) {
     try {
         assert(object !== null && object !== undefined);
         assert(typeof object.serializedObject === 'string');
@@ -9,7 +9,16 @@ function validateApiRequestSingleObject(object) {
         return false;
     }
 }
-exports.validateApiRequestSingleObject = validateApiRequestSingleObject;
+exports.validateApiRequest = validateApiRequest;
+function castApiRequest(object) {
+    if (validateApiRequest(object)) {
+        return object;
+    }
+    else {
+        return null;
+    }
+}
+exports.castApiRequest = castApiRequest;
 function tryGetObject(request) {
     try {
         return JSON.parse(request.serializedObject);

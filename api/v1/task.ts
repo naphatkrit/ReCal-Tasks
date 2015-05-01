@@ -11,6 +11,28 @@ import UserLogic = require('../../models/logic/user_logic');
 
 const router = express.Router();
 
+declare class Error
+{
+    public name: string;
+    public message: string;
+    public stack: string;
+    constructor(message?: string);
+}
+
+class HttpError extends Error
+{
+    constructor(public code: number)
+    {
+        super("HTTP Error");
+        this.name = 'HTTP Error';
+        this.stack = (<any>new Error()).stack;
+    }
+    toString()
+    {
+        return this.name + ': ' + this.code;
+    }
+}
+
 router.route('/')
     .get((req: express.Request, res: express.Response) =>
 {
@@ -25,12 +47,12 @@ router.route('/')
 })
     .post((req: express.Request, res: express.Response) =>
 {
-    if (!ApiRequest.validateApiRequestSingleObject(req.body))
+    if (!ApiRequest.validateApiRequest(req.body))
     {
         // bad request
         res.sendStatus(400);
     }
-    const request = <ApiRequest.ApiRequestSingleObject> req.body;
+    const request = <ApiRequest.ApiRequest> req.body;
     const requestObject = ApiRequest.tryGetObject(request);
     if (requestObject === null || requestObject === undefined)
     {
@@ -92,8 +114,42 @@ router.route('/:task_id')
 })
     .put((req: express.Request, res: express.Response) =>
 {
-    // TODO
-    res.json({ message: "Update task with id " + req.params.task_id });
+    Q.fcall(() =>
+    {
+        const request = ApiRequest.castApiRequest(req.body);
+        if (!request)
+        {
+            throw new HttpError(400)
+        }
+        return request;
+    }).then((request) =>
+    {
+        const requestObject = ApiRequest.tryGetObject(request);
+        if (!requestObject)
+        {
+            throw new HttpError(400)
+        }
+        return requestObject;
+    }).then((requestObject) =>
+    {
+        const task = PlainObject.castTaskPlainObject(requestObject);
+        if (!task)
+        {
+            throw new HttpError(400)
+        }
+        return task;
+    }).then(TaskLogic.updateTask).then((task) =>
+    {
+        res.json(ApiResponse.createResponse([task]))
+    }).fail((error) =>
+    {
+        var code = 400;
+        if (typeof error.code === 'number')
+        {
+            code = error.code;
+        }
+        res.sendStatus(code);
+    })
 })
     .delete((req: express.Request, res: express.Response) =>
 {

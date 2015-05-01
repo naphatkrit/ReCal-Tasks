@@ -1,11 +1,11 @@
 import assert = require('assert');
 
-export interface ApiRequestSingleObject
+export interface ApiRequest
 {
     serializedObject: string,
 }
 
-export function validateApiRequestSingleObject(object: any): boolean
+export function validateApiRequest(object: any): boolean
 {
     try
     {
@@ -19,7 +19,19 @@ export function validateApiRequestSingleObject(object: any): boolean
     }
 }
 
-export function tryGetObject(request: ApiRequestSingleObject): any
+export function castApiRequest(object: any): ApiRequest
+{
+    if (validateApiRequest(object))
+    {
+        return object;
+    }
+    else
+    {
+        return null;
+    }
+}
+
+export function tryGetObject(request: ApiRequest): any
 {
     try
     {
