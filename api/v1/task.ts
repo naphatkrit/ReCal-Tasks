@@ -60,10 +60,35 @@ router.route('/')
 })
 
 router.route('/:task_id')
+    .all((req, res, next) =>
+{
+    // first check if the task belongs to the user
+    Query.userHasTask(req.user.id, req.params.task_id).then((has) =>
+    {
+        if (false && has)
+        {
+            next()
+        } else
+        {
+            // task does not belong to user.
+            res.sendStatus(401)
+        }
+    }).fail(() =>
+    {
+        // task ID does not even exist
+        res.sendStatus(400)
+    })
+})
     .get((req: express.Request, res: express.Response) =>
 {
     // TODO
-    res.json({ message: "Get specific task with id " + req.params.task_id });
+    Query.getTask(req.params.task_id).then((task) =>
+    {
+        res.json(ApiResponse.createResponse([task]))
+    }).fail(() =>
+    {
+        res.sendStatus(400)
+    })
 })
     .put((req: express.Request, res: express.Response) =>
 {

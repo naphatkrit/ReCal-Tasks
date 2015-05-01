@@ -1,6 +1,7 @@
 var Q = require('q');
 var PromiseAdapter = require("../../lib/promise_adapter");
 var PlainObject = require('./plain_object');
+var Task = require('../task');
 var User = require('../user');
 function findOrCreate(model, criteria) {
     return PromiseAdapter.convertMongooseQuery(model.findOne(criteria)).then(function (doc) {
@@ -35,3 +36,13 @@ function getTasksForUser(userId) {
     });
 }
 exports.getTasksForUser = getTasksForUser;
+function getTask(taskId) {
+    return PromiseAdapter.convertMongooseQuery(Task.model.findById(taskId)).then(PlainObject.convertTaskInstance);
+}
+exports.getTask = getTask;
+function userHasTask(userId, taskId) {
+    return _getUser(userId, {}).then(function (user) {
+        return user.tasks.indexOf(taskId) !== -1;
+    });
+}
+exports.userHasTask = userHasTask;

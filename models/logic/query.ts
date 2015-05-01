@@ -3,6 +3,7 @@ import mongoose = require('mongoose');
 
 import PromiseAdapter = require("../../lib/promise_adapter");
 import PlainObject = require('./plain_object');
+import Task = require('../task');
 import User = require('../user');
 
 export function findOrCreate(model, criteria): Q.Promise<mongoose.Document>
@@ -51,5 +52,18 @@ export function getTasksForUser(userId: string): Q.Promise<PlainObject.Interface
     }).then((user: User.Instance) =>
     {
         return Q.all(user.tasks.map(PlainObject.convertTaskInstance))
+    })
+}
+
+export function getTask(taskId: string): Q.Promise<PlainObject.Interfaces.TaskPlainObject>
+{
+    return PromiseAdapter.convertMongooseQuery(Task.model.findById(taskId)).then(PlainObject.convertTaskInstance)
+}
+
+export function userHasTask(userId: string, taskId: string): Q.Promise<boolean>
+{
+    return _getUser(userId, {}).then((user) =>
+    {
+        return user.tasks.indexOf(taskId) !== -1;
     })
 }

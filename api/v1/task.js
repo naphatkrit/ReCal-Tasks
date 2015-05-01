@@ -38,8 +38,24 @@ router.route('/')
     });
 });
 router.route('/:task_id')
+    .all(function (req, res, next) {
+    Query.userHasTask(req.user.id, req.params.task_id).then(function (has) {
+        if (false && has) {
+            next();
+        }
+        else {
+            res.sendStatus(401);
+        }
+    }).fail(function () {
+        res.sendStatus(400);
+    });
+})
     .get(function (req, res) {
-    res.json({ message: "Get specific task with id " + req.params.task_id });
+    Query.getTask(req.params.task_id).then(function (task) {
+        res.json(ApiResponse.createResponse([task]));
+    }).fail(function () {
+        res.sendStatus(400);
+    });
 })
     .put(function (req, res) {
     res.json({ message: "Update task with id " + req.params.task_id });
