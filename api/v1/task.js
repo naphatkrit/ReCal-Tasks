@@ -28,7 +28,7 @@ var HttpError = (function (_super) {
 })(Error);
 router.route('/')
     .get(function (req, res) {
-    Query.getTasksForUser(req.user.userId).done(function (tasks) {
+    Query.getTasksForUser(req.user.id).done(function (tasks) {
         res.json(ApiResponse.createResponse(tasks));
     }, function (err) {
         res.sendStatus(500);
@@ -107,6 +107,15 @@ router.route('/:task_id')
     });
 })
     .delete(function (req, res) {
-    res.json({ message: "delete task with id " + req.params.task_id });
+    Q.all([
+        Query.getUser(req.user.id),
+        Query.getTask(req.params.task_id)
+    ]).spread(function (user, task) {
+        return UserLogic.removeTask(user, task);
+    }).then(function (task) {
+        res.json(ApiResponse.createResponse([]));
+    }).fail(function () {
+        res.sendStatus(400);
+    });
 });
 module.exports = router;

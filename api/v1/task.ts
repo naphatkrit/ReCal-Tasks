@@ -36,7 +36,7 @@ class HttpError extends Error
 router.route('/')
     .get((req: express.Request, res: express.Response) =>
 {
-    Query.getTasksForUser(req.user.userId).done(
+    Query.getTasksForUser(req.user.id).done(
         (tasks) =>
         {
             res.json(ApiResponse.createResponse(tasks))
@@ -103,7 +103,6 @@ router.route('/:task_id')
 })
     .get((req: express.Request, res: express.Response) =>
 {
-    // TODO
     Query.getTask(req.params.task_id).then((task) =>
     {
         res.json(ApiResponse.createResponse([task]))
@@ -153,8 +152,17 @@ router.route('/:task_id')
 })
     .delete((req: express.Request, res: express.Response) =>
 {
-    // TODO
-    res.json({ message: "delete task with id " + req.params.task_id });
+    // TODO should we actually delete the task from the database?
+    Q.all<any>([
+        Query.getUser(req.user.id),
+        Query.getTask(req.params.task_id)
+    ]).spread<PlainObject.Interfaces.UserPlainObject>((user, task)=>{
+        return UserLogic.removeTask(user, task);
+    }).then((task)=>{
+        res.json(ApiResponse.createResponse([]));
+    }).fail(()=>{
+        res.sendStatus(400);
+    })
 })
 
 export = router;

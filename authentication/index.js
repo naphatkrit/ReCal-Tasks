@@ -8,7 +8,7 @@ passport.use(new (require('passport-cas').Strategy)({
 }, function (req, login, done) {
     ModelQuery.findOrCreate(User.model, { _username: login }).then(function (user) {
         done(null, {
-            userId: user.id
+            id: user.id
         });
     }, function (error) {
         console.log("Error creating a user");

@@ -14,7 +14,7 @@ passport.use(new (require('passport-cas').Strategy)({
             (user: any) =>
             {
                 done(null, {
-                    userId: user.id
+                    id: user.id
                 });
             }, (error) =>
             {
