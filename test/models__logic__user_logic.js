@@ -110,6 +110,9 @@ describe('User Logic Unit Tests', function () {
                 taskPlainObject = task;
                 return createUser();
             }).then(function (user) {
+                user.taskGroups.push(taskPlainObject.taskInfo.taskGroup.id);
+                return PromiseAdapter.convertMongooseDocumentSave(user);
+            }).then(function (user) {
                 return PlainObject.convertUserInstance(user);
             }).then(function (user) {
                 userPlainObject = user;
@@ -153,7 +156,19 @@ describe('User Logic Unit Tests', function () {
                 done();
             });
         });
-        it('Should fail when a task has already been added to a user', function (done) {
+        it('Should fail when the task being added belongs to a task group that the user does not belong to', function (done) {
+            PromiseAdapter.convertMongooseQuery(User.model.findById(userPlainObject.id)).then(function (user) {
+                user.taskGroups = [];
+                return PromiseAdapter.convertMongooseDocumentSave(user);
+            }).then(function () {
+                return UserLogic.addTask(userPlainObject, taskPlainObject);
+            }).then(function () {
+                done(new Error('Did not fail'));
+            }, function (err) {
+                done();
+            });
+        });
+        it('Should fail when adding a task twice to a user', function (done) {
             UserLogic.addTask(userPlainObject, taskPlainObject).then(function (newUserPlainObject) {
                 return UserLogic.addTask(userPlainObject, taskPlainObject);
             }).then(function () {
@@ -163,11 +178,81 @@ describe('User Logic Unit Tests', function () {
             });
         });
         it('Should successfull add a task to a user', function () {
-            UserLogic.addTask(userPlainObject, taskPlainObject).then(function (newUserPlainObject) {
+            return UserLogic.addTask(userPlainObject, taskPlainObject).then(function (newUserPlainObject) {
                 assert(newUserPlainObject.id === userPlainObject.id);
                 return PromiseAdapter.convertMongooseQuery(User.model.findById(newUserPlainObject.id));
             }).then(function (user) {
                 assert(user.tasks.indexOf(taskPlainObject.id) !== -1);
+            });
+        });
+    });
+    describe('removeTask()', function () {
+        var userPlainObject = null;
+        var taskPlainObject = null;
+        beforeEach(function (done) {
+            createTaskGroup().then(function (taskGroup) {
+                return createTaskInfo(taskGroup);
+            }).then(function (taskInfo) {
+                return createTask(taskInfo);
+            }).then(function (task) {
+                return PlainObject.convertTaskInstance(task);
+            }).then(function (task) {
+                taskPlainObject = task;
+                return createUser();
+            }).then(function (user) {
+                user.taskGroups.push(taskPlainObject.taskInfo.taskGroup.id);
+                user.tasks.push(taskPlainObject.id);
+                return PromiseAdapter.convertMongooseDocumentSave(user);
+            }).then(function (user) {
+                return PlainObject.convertUserInstance(user);
+            }).then(function (user) {
+                userPlainObject = user;
+                done();
+            }).fail(function (err) {
+                done(err);
+            });
+        });
+        afterEach(function (done) {
+            Q.all([
+                PromiseAdapter.convertMongooseQuery(TaskInfo.model.findByIdAndRemove(taskPlainObject.taskInfo.id)),
+                PromiseAdapter.convertMongooseQuery(TaskGroup.model.findByIdAndRemove(taskPlainObject.taskInfo.taskGroup.id)),
+                PromiseAdapter.convertMongooseQuery(Task.model.findByIdAndRemove(taskPlainObject.id)),
+                PromiseAdapter.convertMongooseQuery(User.model.findByIdAndRemove(userPlainObject.id))
+            ]).then(function () {
+                done();
+            }, function (err) {
+                done(err);
+            });
+        });
+        it('Should fail when user is null', function (done) {
+            UserLogic.removeTask(null, taskPlainObject).then(function () {
+                done(new Error('Did not fail'));
+            }, function (err) {
+                done();
+            });
+        });
+        it('Should fail when task is null', function (done) {
+            UserLogic.removeTask(userPlainObject, null).then(function () {
+                done(new Error('Did not fail'));
+            }, function (err) {
+                done();
+            });
+        });
+        it('Should fail when task id is null', function (done) {
+            var copy = JSON.parse(JSON.stringify(taskPlainObject));
+            delete copy.id;
+            UserLogic.removeTask(userPlainObject, copy).then(function () {
+                done(new Error('Did not fail'));
+            }, function (err) {
+                done();
+            });
+        });
+        it('Should successfull remove a task from a user', function () {
+            return UserLogic.removeTask(userPlainObject, taskPlainObject).then(function (newUserPlainObject) {
+                assert(newUserPlainObject.id === userPlainObject.id);
+                return PromiseAdapter.convertMongooseQuery(User.model.findById(newUserPlainObject.id));
+            }).then(function (user) {
+                assert(user.tasks.indexOf(taskPlainObject.id) === -1);
             });
         });
     });

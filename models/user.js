@@ -58,9 +58,11 @@ var User;
                 Invariants.Predefined.isNotEmpty(user.username),
                 function () {
                     return user.tasks.map(function (task) {
-                        var filtered = user.taskGroups.filter(function (group) { group.id === task.taskInfo.id; });
+                        var filtered = user.taskGroups.filter(function (group) {
+                            return group.id == task.taskInfo.taskGroup;
+                        });
                         return filtered.length > 0;
-                    }).reduce(function (x, y) { x && y; }, true);
+                    }).reduce(function (x, y) { return x && y; }, true);
                 }
             ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
         });

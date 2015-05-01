@@ -103,9 +103,12 @@ module User
                     // check if the user's tasks list is consistent with the user's task groups
                     return user.tasks.map((task) =>
                     {
-                        let filtered = user.taskGroups.filter((group) => { group.id === task.taskInfo.id })
+                        let filtered = user.taskGroups.filter((group) =>
+                        {
+                            return group.id == task.taskInfo.taskGroup // did not populate task group
+                        })
                         return filtered.length > 0;
-                    }).reduce((x, y) => { x && y }, true)
+                    }).reduce((x, y) => { return x && y }, true)
                 }
             ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
         })
