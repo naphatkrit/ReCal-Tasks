@@ -132,6 +132,25 @@ describe('Task Logic Unit Tests', () =>
                     done();
                 })
         })
+        it('Should not accept a plain object without a task group id', (done) =>
+        {
+            TaskLogic.createTaskInfo({
+                title: 'title',
+                description: '',
+                privacy: TaskInfo.TaskPrivacy.Private,
+                taskGroup: {
+                    name: 'Dummy Task Group',
+                    identifier: "cos333"
+                }
+            }).then(
+                () =>
+                {
+                    done(new Error('Did not fail'));
+                }, (err) =>
+                {
+                    done();
+                })
+        })
         it('Should not accept a plain object with nonexistent Task Group id', (done) =>
         {
             TaskLogic.createTaskInfo({

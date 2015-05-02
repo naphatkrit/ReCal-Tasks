@@ -165,7 +165,7 @@ module PlainObject
     {
         export interface TaskGroupPlainObject
         {
-            id: string,
+            id?: string,
             name: string,
             identifier: string,
         }
