@@ -7,7 +7,6 @@ import bodyParser = require('body-parser');
 import session = require('express-session');
 
 import authentication = require('./authentication/index');
-// import routes = require('./routes/index');
 import api = require('./api/index');
 
 var app = express();
@@ -24,13 +23,12 @@ app.use(session({
 app.use(authentication.initialize());
 app.use(authentication.session());
 app.use(cookieParser());
-//app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/login', authentication.loginPage());
 app.use('/logout', authentication.logoutPage());
 app.use('/api', authentication.ensureAuthenticated, api);
 
-// app.use('/', authentication.ensureAuthenticatedRedirect, routes);
+app.use('/', authentication.ensureAuthenticatedRedirect);
 
 if (app.get('env') === 'development')
 {

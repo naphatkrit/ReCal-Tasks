@@ -23,6 +23,7 @@ app.use(cookieParser());
 app.use('/login', authentication.loginPage());
 app.use('/logout', authentication.logoutPage());
 app.use('/api', authentication.ensureAuthenticated, api);
+app.use('/', authentication.ensureAuthenticatedRedirect);
 if (app.get('env') === 'development') {
     app.use(express.static(path.join(__dirname, '../client')));
     app.use(express.static(path.join(__dirname, '../client/.tmp')));
