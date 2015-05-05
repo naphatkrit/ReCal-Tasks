@@ -16,6 +16,9 @@ module User
         _username: {
             type: String,
             required: true,
+            index: {
+                unique: true
+            }
         },
         _taskGroups: [{
             type: mongoose.Schema.Types.ObjectId,
@@ -91,9 +94,9 @@ module User
 
     function invariants(user: Instance): Q.Promise<Invariants.Invariant>
     {
-        return PromiseAdapter.convertMongooseQuery((<any>(user.populate('_taskGroups _tasks'))).execPopulate()).then((user) =>
+        return PromiseAdapter.convertMongooseDocumentPopulate(user, "_taskGroups _tasks").then((user) =>
         {
-            return PromiseAdapter.convertMongoosePromise(mongoose.model('TaskGroup').populate(user, { path: '_taskGroups._taskInfo' }))
+            return PromiseAdapter.convertMongoosePromise(mongoose.model('TaskInfo').populate(user, { path: '_tasks._taskInfo' }))
         }).then((user: any) =>
         {
             return [
@@ -103,9 +106,12 @@ module User
                     // check if the user's tasks list is consistent with the user's task groups
                     return user.tasks.map((task) =>
                     {
-                        let filtered = user.taskGroups.filter((group) => { group.id === task.taskInfo.id })
+                        let filtered = user.taskGroups.filter((group) =>
+                        {
+                            return group.id == task.taskInfo.taskGroup // did not populate task group
+                        })
                         return filtered.length > 0;
-                    }).reduce((x, y) => { x && y }, true)
+                    }).reduce((x, y) => { return x && y }, true)
                 }
             ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
         })

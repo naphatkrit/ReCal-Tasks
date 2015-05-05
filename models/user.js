@@ -9,6 +9,9 @@ var User;
         _username: {
             type: String,
             required: true,
+            index: {
+                unique: true
+            }
         },
         _taskGroups: [{
                 type: mongoose.Schema.Types.ObjectId,
@@ -51,16 +54,18 @@ var User;
     userSchema.plugin(modelInvariantsPluginGenerator(invariants));
     User.model = mongoose.model('User', userSchema);
     function invariants(user) {
-        return PromiseAdapter.convertMongooseQuery((user.populate('_taskGroups _tasks')).execPopulate()).then(function (user) {
-            return PromiseAdapter.convertMongoosePromise(mongoose.model('TaskGroup').populate(user, { path: '_taskGroups._taskInfo' }));
+        return PromiseAdapter.convertMongooseDocumentPopulate(user, "_taskGroups _tasks").then(function (user) {
+            return PromiseAdapter.convertMongoosePromise(mongoose.model('TaskInfo').populate(user, { path: '_tasks._taskInfo' }));
         }).then(function (user) {
             return [
                 Invariants.Predefined.isNotEmpty(user.username),
                 function () {
                     return user.tasks.map(function (task) {
-                        var filtered = user.taskGroups.filter(function (group) { group.id === task.taskInfo.id; });
+                        var filtered = user.taskGroups.filter(function (group) {
+                            return group.id == task.taskInfo.taskGroup;
+                        });
                         return filtered.length > 0;
-                    }).reduce(function (x, y) { x && y; }, true);
+                    }).reduce(function (x, y) { return x && y; }, true);
                 }
             ].reduce(Invariants.chain, Invariants.Predefined.alwaysTrue);
         });

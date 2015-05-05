@@ -12,10 +12,10 @@ module Models
     var db = mongoose.connection;
     db.on('error', console.error.bind(console, 'connection error:'));
     db.once('open', ()=>{
-        // require('./task');
-        // require('./task_group');
-        // require('./task_info');
-        // require('./user');
+        require('./task');
+        require('./task_group');
+        require('./task_info');
+        require('./user');
     })
 
     export var connection: mongoose.Connection = db;

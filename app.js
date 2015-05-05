@@ -25,7 +25,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/login', authentication.loginPage());
 app.use('/logout', authentication.logoutPage());
 app.use('/api', authentication.ensureAuthenticated, api);
-app.use('/', authentication.ensureAuthenticated, routes);
+app.use('/', authentication.ensureAuthenticatedRedirect, routes);
 app.use(function (req, res, next) {
     var err = new Error('Not Found');
     err.status = 404;

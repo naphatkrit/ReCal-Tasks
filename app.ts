@@ -34,7 +34,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/login', authentication.loginPage());
 app.use('/logout', authentication.logoutPage());
 app.use('/api', authentication.ensureAuthenticated, api);
-app.use('/', authentication.ensureAuthenticated, routes);
+app.use('/', authentication.ensureAuthenticatedRedirect, routes);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) =>

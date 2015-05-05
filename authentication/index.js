@@ -8,7 +8,7 @@ passport.use(new (require('passport-cas').Strategy)({
 }, function (req, login, done) {
     ModelQuery.findOrCreate(User.model, { _username: login }).then(function (user) {
         done(null, {
-            userId: user.id
+            id: user.id
         });
     }, function (error) {
         console.log("Error creating a user");
@@ -30,11 +30,18 @@ exports.session = function () {
         failureRedirect: '/login'
     });
 };
-function ensureAuthenticated(req, res, next) {
+function ensureAuthenticatedRedirect(req, res, next) {
     if (req.isAuthenticated()) {
         return next();
     }
     res.redirect('/login');
+}
+exports.ensureAuthenticatedRedirect = ensureAuthenticatedRedirect;
+function ensureAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next();
+    }
+    res.sendStatus(401);
 }
 exports.ensureAuthenticated = ensureAuthenticated;
 function loginPage() {

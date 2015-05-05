@@ -9,6 +9,13 @@ var TaskGroup;
         _name: {
             type: String,
             required: true
+        },
+        _identifier: {
+            type: String,
+            index: {
+                unique: true
+            },
+            required: true
         }
     });
     taskGroupSchema.virtual('name').get(function () {
@@ -18,8 +25,16 @@ var TaskGroup;
         return this._name;
     });
     taskGroupSchema.virtual('name').set(function (newValue) {
-        Invariants.check(Invariants.Predefined.isDefinedAndNotNull(newValue));
         this._name = name;
+    });
+    taskGroupSchema.virtual('identifier').get(function () {
+        if (this._identifier === null || this._identifier === undefined) {
+            return this.id;
+        }
+        return this._identifier;
+    });
+    taskGroupSchema.virtual('identifier').set(function (newValue) {
+        this._identifier = newValue;
     });
     taskGroupSchema.plugin(updatedStatusPlugin);
     taskGroupSchema.plugin(modelInvariantsPluginGenerator(invariants));

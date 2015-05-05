@@ -55,7 +55,23 @@ module PromiseAdapter
             if (err)
             {
                 deferred.reject(err);
-            } else
+            }
+            else
+            {
+                deferred.resolve(document);
+            }
+        })
+        return deferred.promise;
+    }
+
+    export function convertMongooseDocumentPopulate<T extends mongoose.Document>(document: T, populate: string): Q.Promise<T> {
+        let deferred = Q.defer<T>();
+        document.populate<T>(populate, (err, document)=>{
+            if (err)
+            {
+                deferred.reject(err);
+            }
+            else
             {
                 deferred.resolve(document);
             }

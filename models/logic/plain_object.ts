@@ -6,6 +6,7 @@ import models = require('../index');
 import Task = require('../task');
 import TaskInfo = require('../task_info');
 import TaskGroup = require('../task_group');
+import User = require('../user');
 import PromiseAdapter = require('../../lib/promise_adapter');
 
 module PlainObject
@@ -17,7 +18,8 @@ module PlainObject
             assert(taskGroup !== null && taskGroup !== undefined);
             return {
                 id: taskGroup.id,
-                name: taskGroup.name
+                name: taskGroup.name,
+                identifier: taskGroup.identifier
             }
         })
     }
@@ -67,6 +69,94 @@ module PlainObject
             }
         })
     }
+
+    export function convertUserInstance(user: User.Instance): Q.Promise<Interfaces.UserPlainObject>
+    {
+        return Q.fcall(() =>
+        {
+            assert(user !== null && user !== undefined);
+        }).then(() =>
+        {
+            return PromiseAdapter.convertMongooseDocumentPopulate(user, "_taskGroups");
+        }).then((user)=> {
+            return Q.all(user.taskGroups.map(convertTaskGroupInstance));
+        }).then((taskGroups)=>{
+            return {
+                id: user.id,
+                username: user.username,
+                taskGroups: taskGroups
+            }
+        })
+    }
+
+    export function validateTaskGroupPlainObject(object: any): boolean
+    {
+        try
+        {
+            assert(object !== null && object !== undefined);
+            assert(typeof object.id === 'string');
+            assert(typeof object.name === 'string');
+            return true;
+        }
+        catch (e)
+        {
+            return false;
+        }
+    }
+    export function validateTaskInfoPlainObject(object: any): boolean
+    {
+        try
+        {
+            assert(object !== null && object !== undefined);
+            if (object.id !== undefined)
+            {
+                assert(typeof object.id === 'string');
+            }
+            assert(typeof object.title === 'string');
+            assert(typeof object.description === 'string');
+            assert(typeof TaskInfo.TaskPrivacy[object.privacy] === 'string');
+            if (object.previousVersionId !== undefined)
+            {
+                assert(typeof object.previousVersionId === 'string');
+            }
+            assert(validateTaskGroupPlainObject(object.taskGroup));
+            return true;
+        }
+        catch (e)
+        {
+            return false;
+        }
+    }
+    export function validateTaskPlainObject(object: any): boolean
+    {
+        try
+        {
+            assert(object !== null && object !== undefined);
+            if (object.id !== undefined)
+            {
+                assert(typeof object.id === 'string');
+            }
+            assert(typeof Task.TaskState[object.state] === 'string');
+            assert(validateTaskInfoPlainObject(object.taskInfo));
+            return true;
+        }
+        catch (e)
+        {
+            return false;
+        }
+    }
+
+    export function castTaskPlainObject(object: any): Interfaces.TaskPlainObject
+    {
+        if (validateTaskPlainObject(object))
+        {
+            return object;
+        }
+        else
+        {
+            return null;
+        }
+    }
 }
 
 module PlainObject
@@ -75,8 +165,9 @@ module PlainObject
     {
         export interface TaskGroupPlainObject
         {
-            id: string,
-            name: string
+            id?: string,
+            name: string,
+            identifier: string,
         }
         export interface TaskInfoPlainObject
         {
@@ -92,6 +183,12 @@ module PlainObject
             id?: string, // optional since new objects don't have id
             state: Task.TaskState,
             taskInfo: TaskInfoPlainObject,
+        }
+        export interface UserPlainObject
+        {
+            id: string,
+            username: string,
+            taskGroups: TaskGroupPlainObject[]
         }
     }
 }

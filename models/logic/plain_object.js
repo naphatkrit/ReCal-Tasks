@@ -1,5 +1,7 @@
 var assert = require('assert');
 var Q = require('q');
+var Task = require('../task');
+var TaskInfo = require('../task_info');
 var PromiseAdapter = require('../../lib/promise_adapter');
 var PlainObject;
 (function (PlainObject) {
@@ -8,7 +10,8 @@ var PlainObject;
             assert(taskGroup !== null && taskGroup !== undefined);
             return {
                 id: taskGroup.id,
-                name: taskGroup.name
+                name: taskGroup.name,
+                identifier: taskGroup.identifier
             };
         });
     }
@@ -48,5 +51,77 @@ var PlainObject;
         });
     }
     PlainObject.convertTaskInstance = convertTaskInstance;
+    function convertUserInstance(user) {
+        return Q.fcall(function () {
+            assert(user !== null && user !== undefined);
+        }).then(function () {
+            return PromiseAdapter.convertMongooseDocumentPopulate(user, "_taskGroups");
+        }).then(function (user) {
+            return Q.all(user.taskGroups.map(convertTaskGroupInstance));
+        }).then(function (taskGroups) {
+            return {
+                id: user.id,
+                username: user.username,
+                taskGroups: taskGroups
+            };
+        });
+    }
+    PlainObject.convertUserInstance = convertUserInstance;
+    function validateTaskGroupPlainObject(object) {
+        try {
+            assert(object !== null && object !== undefined);
+            assert(typeof object.id === 'string');
+            assert(typeof object.name === 'string');
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
+    }
+    PlainObject.validateTaskGroupPlainObject = validateTaskGroupPlainObject;
+    function validateTaskInfoPlainObject(object) {
+        try {
+            assert(object !== null && object !== undefined);
+            if (object.id !== undefined) {
+                assert(typeof object.id === 'string');
+            }
+            assert(typeof object.title === 'string');
+            assert(typeof object.description === 'string');
+            assert(typeof TaskInfo.TaskPrivacy[object.privacy] === 'string');
+            if (object.previousVersionId !== undefined) {
+                assert(typeof object.previousVersionId === 'string');
+            }
+            assert(validateTaskGroupPlainObject(object.taskGroup));
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
+    }
+    PlainObject.validateTaskInfoPlainObject = validateTaskInfoPlainObject;
+    function validateTaskPlainObject(object) {
+        try {
+            assert(object !== null && object !== undefined);
+            if (object.id !== undefined) {
+                assert(typeof object.id === 'string');
+            }
+            assert(typeof Task.TaskState[object.state] === 'string');
+            assert(validateTaskInfoPlainObject(object.taskInfo));
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
+    }
+    PlainObject.validateTaskPlainObject = validateTaskPlainObject;
+    function castTaskPlainObject(object) {
+        if (validateTaskPlainObject(object)) {
+            return object;
+        }
+        else {
+            return null;
+        }
+    }
+    PlainObject.castTaskPlainObject = castTaskPlainObject;
 })(PlainObject || (PlainObject = {}));
 module.exports = PlainObject;

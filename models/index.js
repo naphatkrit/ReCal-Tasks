@@ -5,6 +5,10 @@ var Models;
     var db = mongoose.connection;
     db.on('error', console.error.bind(console, 'connection error:'));
     db.once('open', function () {
+        require('./task');
+        require('./task_group');
+        require('./task_info');
+        require('./user');
     });
     Models.connection = db;
 })(Models || (Models = {}));
