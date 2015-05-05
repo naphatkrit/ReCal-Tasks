@@ -2,12 +2,12 @@
 
 /**
  * @ngdoc function
- * @name recalTasksApp.controller:MainCtrl
+ * @name clientApp.controller:MainCtrl
  * @description
  * # MainCtrl
- * Controller of the recalTasksApp
+ * Controller of the clientApp
  */
-angular.module('recalTasksApp')
+angular.module('clientApp')
   .controller('MainCtrl', function ($scope) {
     $scope.awesomeThings = [
       'HTML5 Boilerplate',

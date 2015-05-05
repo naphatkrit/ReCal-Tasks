@@ -5,7 +5,6 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
 var authentication = require('./authentication/index');
-var routes = require('./routes/index');
 var api = require('./api/index');
 var app = express();
 app.use(logger('dev'));
@@ -22,31 +21,28 @@ app.use(cookieParser());
 app.use('/login', authentication.loginPage());
 app.use('/logout', authentication.logoutPage());
 app.use('/api', authentication.ensureAuthenticated, api);
-app.use('/', authentication.ensureAuthenticatedRedirect, routes);
-app.use(function (req, res, next) {
-    var err = new Error('Not Found');
-    err.status = 404;
-    next(err);
-});
 if (app.get('env') === 'development') {
-    app.use(express.static(path.join(__dirname, 'public/dev')));
-    app.use(express.static(path.join(__dirname, 'public/dev/app')));
+    app.use(express.static(path.join(__dirname, '../client')));
+    app.use(express.static(path.join(__dirname, '../client/.tmp')));
+    app.use(express.static(path.join(__dirname, '../client/app')));
     app.use(function (err, req, res, next) {
         res.status(err.status || 500);
-        res.render('error', {
+        res.send({
             message: err.message,
             error: err
         });
+        return;
     });
 }
-if (app.get('env') === 'development') {
+if (app.get('env') === 'production') {
     app.use(express.static(path.join(__dirname, 'public/dist')));
     app.use(function (err, req, res, next) {
         res.status(err.status || 500);
-        res.render('error', {
+        res.send({
             message: err.message,
             error: {}
         });
+        return;
     });
 }
 module.exports = app;

@@ -7,7 +7,7 @@ import bodyParser = require('body-parser');
 import session = require('express-session');
 
 import authentication = require('./authentication/index');
-import routes = require('./routes/index');
+// import routes = require('./routes/index');
 import api = require('./api/index');
 
 var app = express();
@@ -29,41 +29,35 @@ app.use(session({
 app.use(authentication.initialize());
 app.use(authentication.session());
 app.use(cookieParser());
-// app.use(express.static(path.join(__dirname, 'public')));
+//app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/login', authentication.loginPage());
 app.use('/logout', authentication.logoutPage());
 app.use('/api', authentication.ensureAuthenticated, api);
-app.use('/', authentication.ensureAuthenticatedRedirect, routes);
 
-// catch 404 and forward to error handler
-app.use((req, res, next) =>
-{
-    var err: any = new Error('Not Found');
-    err.status = 404;
-    next(err);
-});
+// app.use('/', authentication.ensureAuthenticatedRedirect, routes);
 
-// error handlers
-
-// development error handler
-// will print stacktrace
 if (app.get('env') === 'development')
 {
-    app.use(express.static(path.join(__dirname, 'public/dev')));
-    app.use(express.static(path.join(__dirname, 'public/dev/app')));
+    app.use(express.static(path.join(__dirname, '../client')));
+    app.use(express.static(path.join(__dirname, '../client/.tmp')));
+    app.use(express.static(path.join(__dirname, '../client/app')));
 
+    // development error handler
+    // will print stacktrace
     app.use(<(express.ErrorRequestHandler) > function(err, req, res, next)
     {
         res.status(err.status || 500);
-        res.render('error', {
+        res.send({
             message: err.message,
             error: err
-        })
+        });
+
+        return;
     });
 }
 
-if (app.get('env') === 'development')
+if (app.get('env') === 'production')
 {
     // use optimized version for production
     app.use(express.static(path.join(__dirname, 'public/dist')));
@@ -73,10 +67,12 @@ if (app.get('env') === 'development')
     app.use(<(express.ErrorRequestHandler) > function(err, req, res, next)
     {
         res.status(err.status || 500);
-        res.render('error', {
+        res.send({
             message: err.message,
             error: {}
         });
+
+        return;
     });
 }
 

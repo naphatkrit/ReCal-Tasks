@@ -2,14 +2,14 @@
 
 /**
  * @ngdoc overview
- * @name recalTasksApp
+ * @name clientApp
  * @description
- * # recalTasksApp
+ * # clientApp
  *
  * Main module of the application.
  */
 angular
-  .module('recalTasksApp', [
+  .module('clientApp', [
     'ngAnimate',
     'ngCookies',
     'ngResource',
