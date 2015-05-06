@@ -34,5 +34,5 @@ typings
 
 ### Angular
 # External Dependencies
-public/bower_components
-public/node_modules
+client/bower_components
+client/node_modules
