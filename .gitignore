@@ -31,3 +31,8 @@ node_modules
 
 # TSD typings
 typings
+
+### Angular
+# External Dependencies
+client/bower_components
+client/node_modules
